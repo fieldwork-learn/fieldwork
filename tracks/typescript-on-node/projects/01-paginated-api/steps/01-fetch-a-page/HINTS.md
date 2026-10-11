@@ -12,7 +12,7 @@ The starter code throws `Not implemented yet` until you replace the function's b
 
 Call the `fetch` parameter, not the global one. The parameter has the same name, so inside the function, `fetch` already means the one you were given.
 
-## How do I send a header?
+## The Accept header test fails
 
 `fetch` takes a second argument, an options object. Its `headers` property can be a plain object of header names and values. See [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#headers) on MDN. Header names aren't case-sensitive, so `Accept` and `accept` both work.
 

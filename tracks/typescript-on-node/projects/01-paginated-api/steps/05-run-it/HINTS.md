@@ -12,11 +12,19 @@ The tests join everything written to stdout and split it on `\n`, so each reposi
 
 A template literal turns `null` into the text `null`. Decide what to print instead before building the line. The `??` operator gives a fallback when a value is `null` or `undefined`.
 
-## The error test fails with a rejection, or prints a stack trace
+## The error test fails because `main` rejects
 
-Wrap the loop over `listRepositories` in `try`/`catch`, so that a failing page lands in your `catch` instead of rejecting `main`. In the `catch`, the error's type is `unknown`, because JavaScript lets you throw anything. Narrow it with `error instanceof Error` before using `error.message`, and fall back to `String(error)` for anything else. Write the message, not the error itself: `error.stack` is what prints the `at …` lines.
+A rejection from `listRepositories` travels up through your `for await` loop and out of `main`, unless something catches it on the way. `try`/`catch` works around `for await` just as it does around a single `await`.
 
-## What is `import.meta.main`?
+## "'error' is of type 'unknown'"
+
+JavaScript lets you `throw` anything, not just `Error` objects, so TypeScript types a caught error as `unknown`. Narrow it before reading `.message`, as you narrowed JSON in Step 3. [`instanceof`](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) is the check to use for a class.
+
+## The output contains `at …` lines
+
+That's a stack trace. Writing the whole error, or `error.stack`, prints it. The person running the CLI only needs the message.
+
+## I don't understand the `import.meta.main` block at the bottom
 
 It's `true` when the file is the one Node was asked to run, and `false` when another file imported it, as the tests do. It's how the bottom of `src/cli.ts` runs the CLI for real without running it during tests. Setting `process.exitCode` instead of calling `process.exit()` lets Node finish writing the output first.
 

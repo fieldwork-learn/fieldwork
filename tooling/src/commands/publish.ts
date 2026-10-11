@@ -84,7 +84,7 @@ It adds a ruleset to this repository that requires a pull request and the "Field
 `;
 
 /** For a Project without Step 0: the Learner did the Git workflow by hand in their Track's first Project. */
-const workflowSection = `
+const workflowSummarySection = `
 ## Workflow
 
 For each Step (or a few at once), work on a branch, open a pull request against \`main\` in this repository, and merge it once its check passes. The check's summary shows which Steps the pull request passes. After each merge, the pinned Progress issue is updated with your Completed Steps.
@@ -94,14 +94,14 @@ For each Step (or a few at once), work on a branch, open a pull request against 
  * For a Project with Step 0, the first in its Track: the Learner does the Git
  * workflow by hand, one command at a time, before any shortcuts.
  */
-const manualWorkflowSection = `
+const gitWalkthroughSection = `
 ## Workflow: one Step, by hand
 
-Once Step 1 has protected \`main\`, every change reaches it the way it would on a team: on a branch, through a pull request, once the Fieldwork check has passed. Do it by hand, one command at a time, until it feels routine. Each Step's instructions remind you when to start.
+Once Step 1 has protected \`main\`, every change reaches it the way it would on a team: on a branch, through a pull request, once the Fieldwork check has passed. Do it by hand, one command at a time, for every Step until it feels routine.
 
 ### 1. Start a branch
 
-Start from an up-to-date \`main\`, then make a branch named after the Step:
+Start from an up-to-date \`main\`, then make a branch named after the Step you're starting, here Step 2:
 
 \`\`\`sh
 git switch main
@@ -183,7 +183,7 @@ ${steps.map(({ id, title }, index) => `${index + 1}. [Step ${index + 1}: ${title
 - \`steps/<step>/\`: each Step's instructions, Hints and tests.
 - \`fieldwork.json\`: this Project's version and its list of Steps.
 - \`.fieldwork/\`: the commands behind \`npm test\`.
-${hasStepZero ? manualWorkflowSection : workflowSection}
+${hasStepZero ? gitWalkthroughSection : workflowSummarySection}
 ## Updates
 
 This Project gets fixes and new Steps over time. To check for a newer version (this needs the GitHub CLI, logged in with \`gh auth login\`):

@@ -16,7 +16,7 @@ It works for organisations as well as users. `per_page=100` asks for as many as 
 
 ## Before you start
 
-Make a branch for this Step, as described under "Workflow: one Step, by hand" in this repository's README. Every Step from here on reaches `main` through a pull request.
+Make a branch for this Step, as described in the Workflow section of this repository's README. Every Step from here on reaches `main` through a pull request.
 
 ## Testing code that talks to the network
 

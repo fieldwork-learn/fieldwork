@@ -1,12 +1,12 @@
 # Hints: Read every page
 
-## How does an async generator work?
+## "'yield' expressions are only allowed in a generator body"
 
-Declare it with `async function*`. Inside, `await` works as in any `async` function, and `yield value` hands `value` to the caller's `for await` loop. The function pauses at the `yield` until the loop asks for the next value, and finishes when the function returns. See [`for await...of`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of) and [`async function*`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function*) on MDN.
+The starter already declares `listRepositories` with `async function*`; keep the `*`. Inside, `await` works as in any `async` function, and `yield value` hands `value` to the caller's `for await` loop. The function pauses at the `yield` until the loop asks for the next value, and finishes when the function returns. See [`for await...of`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of) and [`async function*`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function*) on MDN.
 
-## How do I keep going until the last page?
+## It stops after the first page
 
-Keep the URL of the page you're about to fetch in a variable, starting with the first page's. Loop while there is one: fetch it, yield its repositories, then set the variable to the next page's URL. `nextPageUrl` returns `undefined` on the last page, which ends the loop.
+You don't know in advance how many pages there are, so a loop over a fixed count won't do. Think about what you know after each page that tells you whether there's another, and loop on that.
 
 ## "fetches a page only when it is needed" fails
 

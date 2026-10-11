@@ -1,6 +1,6 @@
 # Step 5: Read every page
 
-You can fetch a page, parse a repository and find the next page. Now put them together, so that whoever wants the repositories can simply loop over all of them, without knowing anything about pages:
+Whoever uses your code wants the owner's repositories, not pages of them. They shouldn't have to know GitHub splits the list up, or follow `Link` headers themselves. You can now fetch a page, parse a repository and find the next page, so put them together, and let them simply loop over every repository:
 
 ```ts
 for await (const repository of listRepositories("nodejs", fetch)) {

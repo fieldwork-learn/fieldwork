@@ -205,7 +205,7 @@ test("the README of a later Project in a Track leaves the Git walkthrough to the
 
   const readme = readFileSync(join(outDir, "README.md"), "utf8");
   assert.doesNotMatch(readme, /git push -u origin /);
-  assert.match(readme, /## Workflow/);
+  assert.match(readme, /## Workflow\n/);
 });
 
 test("a published Project has a workflow that records progress after each merge to main without committing to it", () => {

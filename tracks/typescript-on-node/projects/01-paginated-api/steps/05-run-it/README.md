@@ -25,6 +25,6 @@ node src/cli.ts nodejs > repos.txt; echo "exit code $?"
 node src/cli.ts; echo "exit code $?"
 ```
 
-GitHub allows 60 requests an hour without logging in, and each page is one request. Later Steps add retries for when GitHub is having a bad moment, and a disk cache, so the same list doesn't cost the same requests twice.
+GitHub allows 60 requests an hour without logging in, and each page is one request, so run it sparingly.
 
 Stuck? See [HINTS.md](HINTS.md).
