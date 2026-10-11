@@ -1,0 +1,31 @@
+{
+  "name": "paginated-api",
+  "version": "0.1.0",
+  "track": "typescript-on-node",
+  "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page.",
+  "assumes": [
+    "JavaScript, including promises and async/await",
+    "Running commands in a terminal",
+    "Committing with Git, at least a little"
+  ],
+  "concepts": [
+    "fetch, Response and HTTP status codes",
+    "Injecting dependencies so tests can fake the network",
+    "unknown and narrowing to type untrusted JSON",
+    "Async generators and for await",
+    "node:test and node:assert",
+    "Exit codes, stdout and stderr in a Node CLI"
+  ],
+  "gitPractices": [
+    "Protect main with a ruleset",
+    "Branch, commit, push, open a pull request and merge, by hand"
+  ],
+  "steps": [
+    { "id": "00-protect-main", "title": "Protect main", "check": "main-ruleset" },
+    { "id": "01-fetch-a-page", "title": "Fetch a page of repositories" },
+    { "id": "02-parse-a-repository", "title": "Parse a repository" },
+    { "id": "03-find-the-next-page", "title": "Find the next page" },
+    { "id": "04-read-every-page", "title": "Read every page" },
+    { "id": "05-run-it", "title": "Run it from the terminal" }
+  ]
+}

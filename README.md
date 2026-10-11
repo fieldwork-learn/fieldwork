@@ -37,7 +37,31 @@ Before you start, install:
 - Git, and a GitHub account.
 - The GitHub CLI (https://cli.github.com), logged in with `gh auth login`. Projects use it to check that `main` is protected, to protect it for you (`npm run setup`) and to bring in updates (`npm run update`).
 
-No Projects yet.
+### paginated-api
+
+A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page.
+
+**Assumes you know:**
+
+- JavaScript, including promises and async/await
+- Running commands in a terminal
+- Committing with Git, at least a little
+
+**Language concepts:**
+
+- fetch, Response and HTTP status codes
+- Injecting dependencies so tests can fake the network
+- unknown and narrowing to type untrusted JSON
+- Async generators and for await
+- node:test and node:assert
+- Exit codes, stdout and stderr in a Node CLI
+
+**Git practices:**
+
+- Protect main with a ruleset
+- Branch, commit, push, open a pull request and merge, by hand
+
+[Use this template](https://github.com/fieldwork-learn/ts-paginated-api/generate) to create your own repository for this Project, then follow its README.
 <!-- fieldwork:tracks:end -->
 
 ## Contributing

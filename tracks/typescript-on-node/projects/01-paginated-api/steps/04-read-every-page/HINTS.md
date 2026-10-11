@@ -1,0 +1,25 @@
+# Hints: Read every page
+
+## How does an async generator work?
+
+Declare it with `async function*`. Inside, `await` works as in any `async` function, and `yield value` hands `value` to the caller's `for await` loop. The function pauses at the `yield` until the loop asks for the next value, and finishes when the function returns. See [`for await...of`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of) and [`async function*`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function*) on MDN.
+
+## How do I keep going until the last page?
+
+Keep the URL of the page you're about to fetch in a variable, starting with the first page's. Loop while there is one: fetch it, yield its repositories, then set the variable to the next page's URL. `nextPageUrl` returns `undefined` on the last page, which ends the loop.
+
+## "fetches a page only when it is needed" fails
+
+Your code is fetching ahead of what the caller has used. Fetch a page, yield all of its repositories, and only then fetch the next. Don't collect pages into an array before yielding anything.
+
+## I need the headers, but `fetchFirstPage` only returns the body
+
+Move the part every page shares, fetching a URL with the right header and rejecting on failure, into a function of its own that returns the whole `Response`. Then `fetchFirstPage` and `listRepositories` can both use it. It doesn't need to be exported, as no test imports it.
+
+## A page's body is `unknown`
+
+Each page should be an array. `Array.isArray` narrows `unknown` to an array you can loop over, and each item is still `unknown`, ready for `parseRepository`.
+
+## "Type 'string | undefined' is not assignable to type 'string'"
+
+TypeScript infers a variable's type from its first value. Start the URL variable with the first page's URL, and it's a `string`, so the `undefined` that `nextPageUrl` returns on the last page won't fit. Declare the type yourself: `let url: string | undefined = …`.

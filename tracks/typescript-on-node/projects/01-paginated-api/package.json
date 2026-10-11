@@ -1,0 +1,13 @@
+{
+  "name": "paginated-api",
+  "private": true,
+  "type": "module",
+  "description": "The first TypeScript-on-Node Project: a CLI over the paginated GitHub API, with retries and a disk cache",
+  "scripts": {
+    "test": "node ../../runner/src/cli.ts test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "typescript": "^7.0.2"
+  }
+}

@@ -53,6 +53,8 @@ The first Project in each Track starts with a Step that has the Learner protect 
 - **In CI:** the PR and progress workflows pass their `GITHUB_TOKEN` to it.
 - **Under `verify`:** monorepo CI has no Learner repository to ask, so `verify` leaves every check Step out of its runs, and such a Step needs no Reference Solution. The other Steps keep the numbers a Learner sees.
 
+The README `publish` generates for a Project with Step 0 also walks the Learner through the Git workflow by hand: branch, commit, push, open a pull request, merge, and bring `main` up to date. Later Projects get a short summary of it instead.
+
 Later Projects in a Track have no Step 0. Their README tells the Learner to run `npm run setup`, which applies a "Fieldwork: protect main" ruleset with the same requirements. Running it again is safe: it leaves an already protected `main` alone, and repairs its own ruleset if it was edited.
 
 ## Reference Solutions
