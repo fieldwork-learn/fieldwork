@@ -187,6 +187,27 @@ test("the README of a Project with Step 0 leaves protecting main to Step 0", () 
   assert.match(readme, /\[Step 1: Protect main\]\(steps\/00-protect-main\/README\.md\)/);
 });
 
+test("the README of a Project with Step 0 walks the Learner through the Git workflow by hand", () => {
+  const outDir = freshOutDir();
+  assert.equal(publish(helloStepZero, outDir).exitCode, 0);
+
+  const readme = readFileSync(join(outDir, "README.md"), "utf8");
+  for (const command of [/git switch -c /, /git add /, /git commit /, /git push -u origin /, /git switch main/, /git pull/]) {
+    assert.match(readme, command);
+  }
+  assert.match(readme, /Compare & pull request/);
+  assert.match(readme, /Merge pull request/);
+});
+
+test("the README of a later Project in a Track leaves the Git walkthrough to the Track's first Project", () => {
+  const outDir = freshOutDir();
+  assert.equal(publish(helloSteps, outDir).exitCode, 0);
+
+  const readme = readFileSync(join(outDir, "README.md"), "utf8");
+  assert.doesNotMatch(readme, /git push -u origin /);
+  assert.match(readme, /## Workflow\n/);
+});
+
 test("a published Project has a workflow that records progress after each merge to main without committing to it", () => {
   const outDir = freshOutDir();
   assert.equal(publish(helloSteps, outDir).exitCode, 0);
