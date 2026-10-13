@@ -184,7 +184,8 @@ test("the README of a Project with Step 0 leaves protecting main to Step 0", () 
 
   const readme = readFileSync(join(outDir, "README.md"), "utf8");
   assert.doesNotMatch(readme, /npm run setup/);
-  assert.match(readme, /\[Step 1: Protect main\]\(steps\/00-protect-main\/README\.md\)/);
+  assert.match(readme, /\[Step 0: Protect main\]\(steps\/00-protect-main\/README\.md\)/);
+  assert.match(readme, /\[Step 1: Greet someone\]\(steps\/01-greet\/README\.md\)/);
 });
 
 test("the README of a Project with Step 0 walks the Learner through the Git workflow by hand", () => {

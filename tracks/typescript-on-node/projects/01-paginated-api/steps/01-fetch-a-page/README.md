@@ -1,4 +1,4 @@
-# Step 2: Fetch a page of repositories
+# Step 1: Fetch a page of repositories
 
 Your team is tidying up its GitHub organisation, and someone asks for a list of every public repository in it, with star counts and descriptions, to decide what to archive. Clicking through GitHub's web pages won't scale, but the GitHub REST API will. Over the next five Steps you build a small CLI that prints that list for any user or organisation:
 
@@ -34,6 +34,16 @@ In `src/repositories.ts`, write `fetchFirstPage(owner, fetch)`. It should:
 - resolve to the response's JSON body, unchanged;
 - reject with an `Error` whose message includes the status code, such as `404`, when the response isn't a success.
 
-The Step passes when `npm test` shows `✔ Step 2: Fetch a page of repositories`. Then commit, push and open your first pull request, following the README.
+The Step passes when `npm test` shows `✔ Step 1: Fetch a page of repositories`. Then commit, push and open your first pull request, following the README.
+
+## Why TypeScript does it this way
+
+Come back to this once the Step passes. It's the TypeScript you used without having to think about it.
+
+- **The fake fits because of its shape, not its name.** `Fetch` is a function type: anything that takes a URL string and an optional `RequestInit`, and returns a `Promise<Response>`. Node's real `fetch` fits, and so does the test's little arrow function, though neither mentions `Fetch`. TypeScript's types are *structural*: it compares shapes, unlike Java or C#, where a class has to declare the interface it implements. That's why injecting a dependency in TypeScript needs no mocking library and no class hierarchy, just a parameter with a type. See [Type Compatibility](https://www.typescriptlang.org/docs/handbook/type-compatibility.html).
+- **`Promise<unknown>`, not `Promise<any>`.** `response.json()` returns `Promise<any>`, and `any` switches type-checking off for everything it touches: `const stars: number = await response.json()` compiles, whatever GitHub sends. Saying `unknown` instead is honest. You don't know the shape yet, so TypeScript won't let anyone use the result until they've checked it. That's exactly what the next Step does.
+- **`async` functions always return a Promise.** That's why the return type is `Promise<unknown>` and never just `unknown`. A `throw` inside an `async` function doesn't throw at the caller: it rejects the Promise, which `await` turns back into an exception.
+- **Imports end in `.ts`.** Node runs your TypeScript by stripping the types out and running what's left. It never rewrites import paths, so imports name the real file, `./repositories.ts`. The tsconfig's `allowImportingTsExtensions` lets the type-checker accept that.
+- **`import { fetchFirstPage, type Fetch }`.** `Fetch` exists only for the type-checker, and stripping the types removes it. Marking it `type` says so up front, and the tsconfig's `verbatimModuleSyntax` insists on it, so Node never tries to import something that won't exist at runtime.
 
 Stuck? See [HINTS.md](HINTS.md).

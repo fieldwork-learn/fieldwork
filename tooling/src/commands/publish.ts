@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { stepNumber } from "../step-number.ts";
 
 const monorepoDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
@@ -97,16 +98,16 @@ For each Step (or a few at once), work on a branch, open a pull request against 
 const gitWalkthroughSection = `
 ## Workflow: one Step, by hand
 
-Once Step 1 has protected \`main\`, every change reaches it the way it would on a team: on a branch, through a pull request, once the Fieldwork check has passed. Do it by hand, one command at a time, for every Step until it feels routine.
+Once Step 0 has protected \`main\`, every change reaches it the way it would on a team: on a branch, through a pull request, once the Fieldwork check has passed. Do it by hand, one command at a time, for every Step until it feels routine.
 
 ### 1. Start a branch
 
-Start from an up-to-date \`main\`, then make a branch named after the Step you're starting, here Step 2:
+Start from an up-to-date \`main\`, then make a branch named after the Step you're starting, here Step 1:
 
 \`\`\`sh
 git switch main
 git pull
-git switch -c step-2
+git switch -c step-1
 \`\`\`
 
 \`git switch -c\` creates the branch and moves you onto it. \`git status\` shows which branch you are on.
@@ -126,7 +127,7 @@ git commit -m "Describe what this commit does"
 ### 3. Push the branch
 
 \`\`\`sh
-git push -u origin step-2
+git push -u origin step-1
 \`\`\`
 
 This sends your branch to GitHub. \`-u\` remembers where it goes, so next time on this branch a plain \`git push\` is enough.
@@ -148,7 +149,7 @@ The merge happened on GitHub, so your own \`main\` doesn't have it yet:
 \`\`\`sh
 git switch main
 git pull
-git branch -d step-2
+git branch -d step-1
 \`\`\`
 
 \`git pull\` brings in the merge, and \`git branch -d\` deletes your local copy of the merged branch. You're ready to start the next Step at 1.
@@ -175,7 +176,7 @@ npm test
 ${hasStepZero ? "" : protectMainSection}
 ## Steps
 
-${steps.map(({ id, title }, index) => `${index + 1}. [Step ${index + 1}: ${title}](steps/${id}/README.md)`).join("\n")}
+${steps.map(({ id, title }, index) => `- [Step ${stepNumber(steps, index)}: ${title}](steps/${id}/README.md)`).join("\n")}
 
 ## Where things live
 

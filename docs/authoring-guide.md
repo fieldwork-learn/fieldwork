@@ -49,7 +49,7 @@ Fill in `fieldwork.json`:
 - **`name`** is the Project's permanent identifier. It names its template repository (`fieldwork-learn/<Track prefix>-<name>`, see ADR-0003) and its version tags (`<name>@<version>`), so never change it once published.
 - **`version`** starts at `0.1.0`.
 - **`summary`, `assumes`, `concepts` and `gitPractices`** feed the monorepo README. Write `assumes` for a Learner deciding whether to start here.
-- **Each Step's `id`** is its folder name in `steps/` and `solutions/`. Prefix ids with a number so the folders sort in order. The runner numbers Steps from 1 by their position in this list, whatever the id says.
+- **Each Step's `id`** is its folder name in `steps/` and `solutions/`. Prefix ids with a number so the folders sort in order. Steps are numbered by their position in this list, whatever the id says: from 0 when the first Step is Step 0, otherwise from 1. Number the folders the same way, so `01-…` is Step 1.
 
 In `package.json`, set `name` to the Project's name, as `publish` ships it unchanged, and replace the fixture's `description` with one for maintainers (`publish` drops it). Otherwise leave `package.json` and `tsconfig.json` as the fixture has them unless the Project needs more. Any dependency you add must already be in the monorepo's `package-lock.json`, because `publish` builds the Project's lockfile from it offline. Add it to the monorepo first if it isn't.
 
@@ -71,7 +71,7 @@ export function greet(name: string): string {
 
 Each `steps/<step-id>/` holds:
 
-- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)).
+- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. In the TypeScript-on-Node Track, follow that with a **"Why TypeScript does it this way"** section: the TypeScript the Step used and why the language works that way, such as structural typing, `unknown` versus `any`, or types being erased at runtime. Learners come from JavaScript, so this is what they should take away from each Step, beyond making the tests pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)).
 - **`HINTS.md`, the Hints.** Each Hint unblocks a Learner without giving the answer: point at the concept, the API or the docs page, or explain what a failure message means. Write Hints for the places Learners really get stuck, headed by the symptom ("`fetch` returns a Promise, not the data").
 - **`*.test.ts`, the tests.** They define the Step.
 

@@ -22,8 +22,8 @@ test("Step 0 fails while main has no ruleset, saying what is missing and how to 
 
   const { exitCode, output } = runTest(stepZeroProject(), fakeGitHubEnv(github));
 
-  assert.match(output, /✘ Step 1: Protect main \(main does not require a pull request or the "Fieldwork Steps" check\)/);
-  assert.match(output, /🔒 Step 2: Greet someone/);
+  assert.match(output, /✘ Step 0: Protect main \(main does not require a pull request or the "Fieldwork Steps" check\)/);
+  assert.match(output, /🔒 Step 1: Greet someone/);
   assert.match(output, /steps\/00-protect-main\/README\.md/);
   assert.equal(exitCode, 1);
 });
@@ -34,8 +34,8 @@ test("Step 0 passes once a ruleset the Learner made requires a pull request and 
 
   const { exitCode, output } = runTest(stepZeroProject(), fakeGitHubEnv(github));
 
-  assert.match(output, /✔ Step 1: Protect main/);
-  assert.match(output, /✔ Step 2: Greet someone/);
+  assert.match(output, /✔ Step 0: Protect main/);
+  assert.match(output, /✔ Step 1: Greet someone/);
   assert.equal(exitCode, 0);
 });
 
@@ -45,7 +45,7 @@ test("Step 0 names the one requirement still missing", () => {
 
   const { output } = runTest(stepZeroProject(), fakeGitHubEnv(github));
 
-  assert.match(output, /✘ Step 1: Protect main \(main does not require the "Fieldwork Steps" check\)/);
+  assert.match(output, /✘ Step 0: Protect main \(main does not require the "Fieldwork Steps" check\)/);
 });
 
 test("Step 0 does not count a ruleset left disabled", () => {
@@ -54,7 +54,7 @@ test("Step 0 does not count a ruleset left disabled", () => {
 
   const { output } = runTest(stepZeroProject(), fakeGitHubEnv(github));
 
-  assert.match(output, /✘ Step 1: Protect main/);
+  assert.match(output, /✘ Step 0: Protect main/);
 });
 
 test("Step 0 is not failed by type errors in Learner Code, which belong to the code Steps", () => {
@@ -63,8 +63,8 @@ test("Step 0 is not failed by type errors in Learner Code, which belong to the c
 
   const { output } = runTest(stepZeroProject(`${greetSolved}const broken: number = "text";\n`), fakeGitHubEnv(github));
 
-  assert.match(output, /✔ Step 1: Protect main/);
-  assert.match(output, /✘ Step 2: Greet someone \(1\/1 tests passing, 1 type error\)/);
+  assert.match(output, /✔ Step 0: Protect main/);
+  assert.match(output, /✘ Step 1: Greet someone \(1\/1 tests passing, 1 type error\)/);
 });
 
 test("Step 0 fails with guidance, rather than crashing, when gh is not logged in", () => {
@@ -73,7 +73,7 @@ test("Step 0 fails with guidance, rather than crashing, when gh is not logged in
 
   const { exitCode, output } = runTest(stepZeroProject(), fakeGitHubEnv(github));
 
-  assert.match(output, /✘ Step 1: Protect main \(could not check main's rulesets\)/);
+  assert.match(output, /✘ Step 0: Protect main \(could not check main's rulesets\)/);
   assert.match(output, /gh auth login/);
   assert.equal(exitCode, 1);
 });
@@ -90,7 +90,7 @@ test("setup applies a ruleset that makes Step 0 pass", () => {
     github.rulesets().map(({ name, branch, requiredChecks }) => ({ name, branch, requiredChecks })),
     [{ name: "Fieldwork: protect main", branch: "main", requiredChecks: ["Fieldwork Steps"] }],
   );
-  assert.match(runTest(dir, fakeGitHubEnv(github)).output, /✔ Step 1: Protect main/);
+  assert.match(runTest(dir, fakeGitHubEnv(github)).output, /✔ Step 0: Protect main/);
 });
 
 test("setup leaves an already protected main alone", () => {
@@ -141,7 +141,7 @@ test("progress records Step 0 as a Completed Step once main is protected", () =>
 
   assert.equal(exitCode, 0, output);
   assert.match(github.issues()[0]!.body, /all 2 Steps completed/);
-  assert.match(github.issues()[0]!.body, /✅ Step 1: Protect main/);
+  assert.match(github.issues()[0]!.body, /✅ Step 0: Protect main/);
 });
 
 test("Step 0 does not hide a failure the Learner cannot fix: the Steps cannot run, so it exits 2", () => {
@@ -152,4 +152,20 @@ test("Step 0 does not hide a failure the Learner cannot fix: the Steps cannot ru
 
   assert.match(output, /HTTP 502/);
   assert.equal(exitCode, 2);
+});
+
+test("a Project with Step 0 numbers its Steps from 0, so --step takes the number the Learner sees", () => {
+  const github = fakeGitHub();
+  const dir = stepZeroProject();
+
+  const codeStep = runCli(dir, ["test", "--step", "1"], fakeGitHubEnv(github));
+  assert.match(codeStep.output, /✔ Step 1: Greet someone/);
+  assert.doesNotMatch(codeStep.output, /Protect main/);
+
+  const stepZero = runCli(dir, ["test", "--step", "0"], fakeGitHubEnv(github));
+  assert.match(stepZero.output, /✘ Step 0: Protect main/);
+
+  const outOfRange = runCli(dir, ["test", "--step", "2"], fakeGitHubEnv(github));
+  assert.match(outOfRange.output, /Steps 0 to 1/);
+  assert.equal(outOfRange.exitCode, 2);
 });

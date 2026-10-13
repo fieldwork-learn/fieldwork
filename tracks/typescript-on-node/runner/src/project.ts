@@ -46,6 +46,15 @@ export function isStepContent(path: string): boolean {
   return path.startsWith(`${stepsFolder}/`);
 }
 
+/**
+ * The number a Learner sees for the Step at `index`. The first Project of a
+ * Track starts with Step 0 (protect main), so its code Steps number from 1;
+ * any other Project numbers its Steps from 1.
+ */
+export function stepNumber(steps: StepDefinition[], index: number): number {
+  return steps[0]?.check === "main-ruleset" ? index : index + 1;
+}
+
 export function stepDir(project: Project, step: StepDefinition): string {
   return join(project.dir, stepPath(step));
 }

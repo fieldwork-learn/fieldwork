@@ -1,4 +1,4 @@
-// Learner Code: the command you run in a terminal, from Step 6.
+// Learner Code: the command you run in a terminal, from Step 5.
 import type { Fetch } from "./repositories.ts";
 
 /** Somewhere to write text, such as `process.stdout`. */
@@ -13,7 +13,7 @@ export interface Io {
   stderr: Writer;
 }
 
-/** Step 6: runs the CLI with its command-line arguments and returns its exit code. */
+/** Step 5: runs the CLI with its command-line arguments and returns its exit code. */
 export async function main(args: string[], io: Io): Promise<number> {
   throw new Error("Not implemented yet");
 }

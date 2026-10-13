@@ -13,7 +13,7 @@ export interface Repository {
   stars: number;
 }
 
-/** Step 2: the first page of `owner`'s public repositories, as GitHub sent it. */
+/** Step 1: the first page of `owner`'s public repositories, as GitHub sent it. */
 export async function fetchFirstPage(owner: string, fetch: Fetch): Promise<unknown> {
   const response = await fetchPage(firstPageUrl(owner), fetch);
   return response.json();
@@ -32,7 +32,7 @@ async function fetchPage(url: string, fetch: Fetch): Promise<Response> {
   return response;
 }
 
-/** Step 3: one repository from GitHub's JSON, checked and turned into a `Repository`. */
+/** Step 2: one repository from GitHub's JSON, checked and turned into a `Repository`. */
 export function parseRepository(json: unknown): Repository {
   if (typeof json !== "object" || json === null || Array.isArray(json)) {
     throw new Error(`Expected a repository object, but got ${JSON.stringify(json)}`);
@@ -49,7 +49,7 @@ export function parseRepository(json: unknown): Repository {
   return { name: json.name, description: json.description, stars: json.stargazers_count };
 }
 
-/** Step 4: the URL of the next page, from a response's `Link` header. */
+/** Step 3: the URL of the next page, from a response's `Link` header. */
 export function nextPageUrl(link: string | null): string | undefined {
   if (link === null) return undefined;
   for (const part of link.split(",")) {
@@ -59,7 +59,7 @@ export function nextPageUrl(link: string | null): string | undefined {
   return undefined;
 }
 
-/** Step 5: every one of `owner`'s public repositories, page by page. */
+/** Step 4: every one of `owner`'s public repositories, page by page. */
 export async function* listRepositories(owner: string, fetch: Fetch): AsyncGenerator<Repository> {
   let url: string | undefined = firstPageUrl(owner);
   while (url !== undefined) {

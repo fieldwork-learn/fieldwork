@@ -22,4 +22,4 @@ GitHub suggests the checks that have run in this repository recently, and this o
 
 ## I already had a ruleset or branch protection
 
-Step 1 counts any active ruleset that targets `main`, whatever it is called. Classic branch protection rules, under **Settings**, then **Branches**, do not count. Rulesets are what GitHub now recommends.
+Step 0 counts any active ruleset that targets `main`, whatever it is called. Classic branch protection rules, under **Settings**, then **Branches**, do not count. Rulesets are what GitHub now recommends.

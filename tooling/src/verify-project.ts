@@ -1,6 +1,7 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { compareVersions, isVersion, lastPublished, majorVersion } from "./published.ts";
+import { stepNumber } from "./step-number.ts";
 import { trackRunner, type TrackRunner } from "./tracks.ts";
 
 interface StepDefinition {
@@ -40,7 +41,7 @@ export function verifyProject(projectDir: string): Verdict {
 
   const steps = codeSteps(metadata.steps);
   // Steps are numbered as a Learner sees them, Step 0 included.
-  const number = (index: number) => metadata.steps.indexOf(steps[index]!) + 1;
+  const number = (index: number) => stepNumber(metadata.steps, metadata.steps.indexOf(steps[index]!));
   const label = (index: number) => `Step ${number(index)} "${steps[index]!.title}"`;
   const problems: string[] = [];
   const workDir = makeWorkingCopy(projectDir);
@@ -65,7 +66,7 @@ export function verifyProject(projectDir: string): Verdict {
       const run = runSteps(workDir);
       if (run.passedSteps <= index) {
         problems.push(
-          `${label(index)}: its Reference Solution must pass Steps 1..${number(index)}, but fails ${label(run.passedSteps)}\n${indent(run.output)}`,
+          `${label(index)}: its Reference Solution must pass Steps ${number(0)}..${number(index)}, but fails ${label(run.passedSteps)}\n${indent(run.output)}`,
         );
       } else if (run.passedSteps > index + 1) {
         problems.push(
@@ -109,8 +110,9 @@ function publishedStepProblems(
   const moved = published.steps.findIndex((step, index) => metadata.steps[index]?.id !== step.id);
   if (moved !== -1) {
     const step = published.steps[moved]!;
+    const number = stepNumber(published.steps, moved);
     return [
-      `Step ${moved + 1} "${step.title}" from ${published.tag} is no longer Step ${moved + 1}, so Learners who completed it would lose it after a Project Update to ${metadata.version}. Within a major version published Steps must not be removed or reordered: bump the major version, or put the Step back`,
+      `Step ${number} "${step.title}" from ${published.tag} is no longer Step ${number}, so Learners who completed it would lose it after a Project Update to ${metadata.version}. Within a major version published Steps must not be removed or reordered: bump the major version, or put the Step back`,
     ];
   }
 

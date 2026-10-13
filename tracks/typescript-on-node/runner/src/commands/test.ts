@@ -2,7 +2,7 @@ import { watch as watchDir, type FSWatcher } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { checkOneStep, checkStepsInOrder, stepLabel, type StepCheck } from "../check-steps.ts";
-import { loadProject, stepsFolder, type Project } from "../project.ts";
+import { loadProject, stepNumber, stepsFolder, type Project } from "../project.ts";
 
 /**
  * Runs the Project's Steps in order, stopping at the Current Step, or with
@@ -24,7 +24,10 @@ export async function testCommand(args: string[]): Promise<number> {
   if (values.step !== undefined) {
     stepIndex = parseStepNumber(values.step, project);
     if (stepIndex === undefined) {
-      console.error(`Invalid Step number "${values.step}": this Project has Steps 1 to ${project.steps.length}`);
+      const last = project.steps.length - 1;
+      console.error(
+        `Invalid Step number "${values.step}": this Project has Steps ${stepNumber(project.steps, 0)} to ${stepNumber(project.steps, last)}`,
+      );
       return 2;
     }
   }
@@ -39,11 +42,11 @@ export async function testCommand(args: string[]): Promise<number> {
 
 const usage = "Usage: fieldwork test [--step N] [--watch]";
 
-/** The zero-based index of the Step a Learner numbered from 1, if the Project has it. */
+/** The index of the Step with the number a Learner sees (see stepNumber), if the Project has it. */
 function parseStepNumber(value: string, project: Project): number | undefined {
   if (!/^\d+$/.test(value)) return undefined;
-  const number = Number(value);
-  return number >= 1 && number <= project.steps.length ? number - 1 : undefined;
+  const index = Number(value) - stepNumber(project.steps, 0);
+  return index >= 0 && index < project.steps.length ? index : undefined;
 }
 
 /** The folders whose changes trigger a rerun: Learner Code and Step folders. */
@@ -115,9 +118,9 @@ interface Report {
 
 async function runInOrder(project: Project): Promise<Report> {
   const checks = await checkStepsInOrder(project);
-  const lines = checks.map(statusLine);
+  const lines = checks.map((check) => statusLine(project, check));
   for (const [index, step] of project.steps.entries()) {
-    if (index >= checks.length) lines.push(`🔒 ${stepLabel(index, step)}`);
+    if (index >= checks.length) lines.push(`🔒 ${stepLabel(project.steps, index)}`);
   }
 
   const current = checks.find(({ passed }) => !passed);
@@ -131,13 +134,14 @@ async function runInOrder(project: Project): Promise<Report> {
 
 async function runOne(project: Project, index: number): Promise<Report> {
   const check = await checkOneStep(project, index);
-  return { lines: [statusLine(check), ...explanationLines(check)], exitCode: check.passed ? 0 : 1 };
+  return { lines: [statusLine(project, check), ...explanationLines(check)], exitCode: check.passed ? 0 : 1 };
 }
 
 /** A Step's status line, e.g. `✘ Step 2: Say goodbye (1/2 tests passing)`. */
-function statusLine({ index, step, passed, details }: StepCheck): string {
+function statusLine(project: Project, { index, passed, details }: StepCheck): string {
   // Monorepo `verify` counts these "✔ Step" lines (tooling/src/tracks.ts).
-  return passed ? `✔ ${stepLabel(index, step)}` : `✘ ${stepLabel(index, step)} (${details})`;
+  const label = stepLabel(project.steps, index);
+  return passed ? `✔ ${label}` : `✘ ${label} (${details})`;
 }
 
 /** What a failing Step's report adds below the status lines: its guidance and type errors. */

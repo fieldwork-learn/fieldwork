@@ -2,7 +2,7 @@
 
 ## Getting the owner out of `args`
 
-`args[0]` is the owner, or `undefined` when no argument was given. Array destructuring, `const [owner] = args`, does the same. Check for `undefined` before anything else, and TypeScript narrows `owner` to a `string` after the check.
+`args[0]` is the owner, or `undefined` when no argument was given. Array destructuring, `const [owner] = args`, does the same. Either way its type is `string | undefined`, so TypeScript won't let you pass it on until you've checked it isn't `undefined`. After the check, it's a `string`.
 
 ## The repositories print, but the line count is wrong
 
@@ -18,7 +18,7 @@ A rejection from `listRepositories` travels up through your `for await` loop and
 
 ## "'error' is of type 'unknown'"
 
-JavaScript lets you `throw` anything, not just `Error` objects, so TypeScript types a caught error as `unknown`. Narrow it before reading `.message`, as you narrowed JSON in Step 3. [`instanceof`](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) is the check to use for a class.
+JavaScript lets you `throw` anything, not just `Error` objects, so TypeScript types a caught error as `unknown`. Narrow it before reading `.message`, as you narrowed JSON in Step 2. [`instanceof`](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) is the check to use for a class.
 
 ## The output contains `at …` lines
 

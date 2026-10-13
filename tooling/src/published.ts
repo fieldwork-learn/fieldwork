@@ -9,7 +9,7 @@ export interface PublishedProject {
   tag: string;
   version: string;
   /** The Steps in their published order. */
-  steps: { id: string; title: string }[];
+  steps: { id: string; title: string; check?: string }[];
   /** Writes the published Reference Solutions into `dir` as `<dir>/<step-id>/…`. */
   extractSolutions: (dir: string) => void;
 }
@@ -30,7 +30,7 @@ export function lastPublished(projectDir: string, name: string): PublishedProjec
 
   const { tag, version } = published;
   const metadata = JSON.parse(gitOrThrow(projectDir, ["show", `${tag}:${prefix}fieldwork.json`])) as {
-    steps: { id: string; title: string }[];
+    steps: { id: string; title: string; check?: string }[];
   };
   return {
     tag,
