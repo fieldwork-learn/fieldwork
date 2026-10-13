@@ -2,7 +2,7 @@
 
 ## Getting the owner out of `args`
 
-`args[0]` is the owner, or `undefined` when no argument was given. Array destructuring, `const [owner] = args`, does the same. Check for `undefined` before anything else, and TypeScript narrows `owner` to a `string` after the check.
+`args[0]` is the owner, or `undefined` when no argument was given. Array destructuring, `const [owner] = args`, does the same. Either way its type is `string | undefined`, so TypeScript won't let you pass it on until you've checked it isn't `undefined`. After the check, it's a `string`.
 
 ## The repositories print, but the line count is wrong
 

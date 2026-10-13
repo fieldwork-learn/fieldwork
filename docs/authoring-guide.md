@@ -71,7 +71,7 @@ export function greet(name: string): string {
 
 Each `steps/<step-id>/` holds:
 
-- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)).
+- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. In the TypeScript-on-Node Track, follow that with a **"Why TypeScript does it this way"** section: the TypeScript the Step used and why the language works that way, such as structural typing, `unknown` versus `any`, or types being erased at runtime. Learners come from JavaScript, so this is what they should take away from each Step, beyond making the tests pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)).
 - **`HINTS.md`, the Hints.** Each Hint unblocks a Learner without giving the answer: point at the concept, the API or the docs page, or explain what a failure message means. Write Hints for the places Learners really get stuck, headed by the symptom ("`fetch` returns a Promise, not the data").
 - **`*.test.ts`, the tests.** They define the Step.
 

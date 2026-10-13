@@ -27,4 +27,12 @@ node src/cli.ts; echo "exit code $?"
 
 GitHub allows 60 requests an hour without logging in, and each page is one request, so run it sparingly.
 
+## Why TypeScript does it this way
+
+- **Small interfaces describe only what you use.** `Writer` asks for one method, `write(text: string)`. `process.stdout` has dozens more, and fits anyway, because TypeScript only checks that the shape you ask for is there. So does the test's fake, which has nothing else. Asking for the least you need is what makes code easy to test.
+- **`unknown` as a return type means "I don't care".** `process.stdout.write` returns a `boolean`, and the test's fake returns a number. `write(text: string): unknown` accepts both, because `main` never uses the result. Writing `void` would also work for functions, but `unknown` says it more plainly.
+- **A caught error is `unknown`.** JavaScript can `throw` anything, a string, a number or `undefined`, so with `strict` on, TypeScript types the variable in `catch (error)` as `unknown`, not `Error`. `error instanceof Error` narrows it before you read `.message`, the same narrowing as in Step 2, applied to classes.
+- **`args[0]` might not be there.** `args` is a `string[]`, and with `noUncheckedIndexedAccess` on, `args[0]` (or `const [owner] = args`) is `string | undefined`. TypeScript won't let you pass it to `listRepositories` until you've checked, which is exactly the check the usage message needs.
+- **`import.meta.main` and top-level `await`.** This Project's `package.json` says `"type": "module"`, so every file is an ES module. Modules can `await` outside a function, which the last lines of `src/cli.ts` use, and have `import.meta`, where `import.meta.main` says whether this file is the one Node was asked to run.
+
 Stuck? See [HINTS.md](HINTS.md).

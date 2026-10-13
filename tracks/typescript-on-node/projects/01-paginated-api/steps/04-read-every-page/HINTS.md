@@ -16,9 +16,9 @@ Your code is fetching ahead of what the caller has used. Fetch a page, yield all
 
 Move the part every page shares, fetching a URL with the right header and rejecting on failure, into a function of its own that returns the whole `Response`. Then `fetchFirstPage` and `listRepositories` can both use it. It doesn't need to be exported, as no test imports it.
 
-## A page's body is `unknown`
+## A page's body is `unknown`, and I can't loop over it
 
-Each page should be an array. `Array.isArray` narrows `unknown` to an array you can loop over, and each item is still `unknown`, ready for `parseRepository`.
+Each page should be an array, but TypeScript doesn't know that until you check. `Array.isArray` narrows `unknown` to an array you can loop over. Its items come out as `any`, so pass each one straight to `parseRepository`, which takes `unknown` and checks it.
 
 ## "Type 'string | undefined' is not assignable to type 'string'"
 

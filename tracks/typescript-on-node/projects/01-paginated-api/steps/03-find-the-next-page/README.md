@@ -25,4 +25,10 @@ In `src/repositories.ts`, write `nextPageUrl(link)`. It takes the value of a `Li
 
 The Step passes when `npm test` shows `✔ Step 3: Find the next page`.
 
+## Why TypeScript does it this way
+
+- **The return type is a contract TypeScript holds you to.** `string | undefined` means every path through the function must return one or the other. Return `null` by mistake, or forget a `return` on one path, and it's a compile error in this function, not a surprise in whoever calls it.
+- **`null` and `undefined` are different types.** JavaScript has two "nothing" values, and TypeScript keeps them apart. Web APIs such as `Headers.get` and `RegExp.prototype.exec` use `null`. TypeScript code tends to use `undefined`, because it's what optional parameters and properties (`init?: RequestInit`) and a missing array element give you. Converting at the edge, as this function does, keeps the rest of your code to one of them.
+- **Indexing can miss.** This Project's tsconfig turns on `noUncheckedIndexedAccess`, so `match[1]` is `string | undefined`, not `string`: a regular expression's capture group can be missing. TypeScript's default is to assume every index exists, which is convenient and sometimes wrong. With this setting on, it makes you say what happens when it doesn't.
+
 Stuck? See [HINTS.md](HINTS.md).

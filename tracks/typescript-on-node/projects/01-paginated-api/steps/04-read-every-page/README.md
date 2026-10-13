@@ -26,4 +26,10 @@ Your `fetchFirstPage` from Step 1 returns only the body, but here you need the r
 
 The Step passes when `npm test` shows `✔ Step 4: Read every page`.
 
+## Why TypeScript does it this way
+
+- **`AsyncGenerator<Repository>` checks both ends.** Inside the function, `yield` only accepts a `Repository`: yield GitHub's raw JSON, and it's a compile error. Outside, a caller's `for await (const repository of …)` knows `repository` is a `Repository`, without annotating it. One type in the signature does both jobs.
+- **A variable's type comes from its first value.** Start `let url` with the first page's URL and it's a `string`, so assigning the `undefined` that `nextPageUrl` returns on the last page fails. When a variable will hold more than its first value, give it its type yourself: `let url: string | undefined`. Then a check such as `while (url !== undefined)` narrows it back to `string` inside the loop.
+- **`any` sneaks in through library types.** `Array.isArray` narrows an `unknown` to `any[]`, not `unknown[]`, so each item on a page is `any`. Your code is still safe, because every item goes straight into `parseRepository`, which takes `unknown` and checks it. But `any` spreads silently: once one value is `any`, everything computed from it is too. Wherever an `any` comes in, hand it to code that treats it as `unknown`.
+
 Stuck? See [HINTS.md](HINTS.md).

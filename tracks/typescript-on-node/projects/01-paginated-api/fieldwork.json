@@ -11,7 +11,9 @@
   "concepts": [
     "fetch, Response and HTTP status codes",
     "Injecting dependencies so tests can fake the network",
-    "unknown and narrowing to type untrusted JSON",
+    "Structural typing, and why types are erased at runtime",
+    "unknown versus any, and narrowing to type untrusted JSON",
+    "null versus undefined, and noUncheckedIndexedAccess",
     "Async generators and for await",
     "node:test and node:assert",
     "Exit codes, stdout and stderr in a Node CLI"
