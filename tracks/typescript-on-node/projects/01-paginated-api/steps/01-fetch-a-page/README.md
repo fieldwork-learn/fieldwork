@@ -1,4 +1,4 @@
-# Step 2: Fetch a page of repositories
+# Step 1: Fetch a page of repositories
 
 Your team is tidying up its GitHub organisation, and someone asks for a list of every public repository in it, with star counts and descriptions, to decide what to archive. Clicking through GitHub's web pages won't scale, but the GitHub REST API will. Over the next five Steps you build a small CLI that prints that list for any user or organisation:
 
@@ -34,6 +34,6 @@ In `src/repositories.ts`, write `fetchFirstPage(owner, fetch)`. It should:
 - resolve to the response's JSON body, unchanged;
 - reject with an `Error` whose message includes the status code, such as `404`, when the response isn't a success.
 
-The Step passes when `npm test` shows `✔ Step 2: Fetch a page of repositories`. Then commit, push and open your first pull request, following the README.
+The Step passes when `npm test` shows `✔ Step 1: Fetch a page of repositories`. Then commit, push and open your first pull request, following the README.
 
 Stuck? See [HINTS.md](HINTS.md).

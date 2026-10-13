@@ -106,11 +106,13 @@ function replaceProjectContent(latestDir: string, updateDir: string): void {
 function describeUpdate(current: Project, latest: Project, changedPaths: string[]): string {
   const currentIds = new Set(current.steps.map(({ id }) => id));
   const latestIds = new Set(latest.steps.map(({ id }) => id));
-  const added = latest.steps.flatMap((step, index) => (currentIds.has(step.id) ? [] : [stepLabel(index, step)]));
+  const added = latest.steps.flatMap((step, index) => (currentIds.has(step.id) ? [] : [stepLabel(latest.steps, index)]));
   const changed = latest.steps.flatMap((step, index) =>
-    currentIds.has(step.id) && changedPaths.some((path) => path.startsWith(`${stepPath(step)}/`)) ? [stepLabel(index, step)] : [],
+    currentIds.has(step.id) && changedPaths.some((path) => path.startsWith(`${stepPath(step)}/`))
+      ? [stepLabel(latest.steps, index)]
+      : [],
   );
-  const removed = current.steps.flatMap((step, index) => (latestIds.has(step.id) ? [] : [stepLabel(index, step)]));
+  const removed = current.steps.flatMap((step, index) => (latestIds.has(step.id) ? [] : [stepLabel(current.steps, index)]));
 
   const sections = [
     ["Steps added", added],

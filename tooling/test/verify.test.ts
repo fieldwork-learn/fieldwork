@@ -289,7 +289,7 @@ test("names code Steps by their number as a Learner sees it, counting Step 0", (
 
   const { exitCode, output } = runFieldwork(["verify", project]);
 
-  assert.match(output, /hello-step-zero, Step 2 "Greet someone": the starter code passes it/);
+  assert.match(output, /hello-step-zero, Step 1 "Greet someone": the starter code passes it/);
   assert.equal(exitCode, 1);
 });
 
@@ -298,6 +298,6 @@ test("with Step 0, says which Steps a Reference Solution must pass by the number
 
   const { exitCode, output } = runFieldwork(["verify", project]);
 
-  assert.match(output, /hello-step-zero, Step 2 "Greet someone": its Reference Solution must pass Steps 1\.\.2, but fails Step 2 "Greet someone"/);
+  assert.match(output, /hello-step-zero, Step 1 "Greet someone": its Reference Solution must pass Steps 1\.\.1, but fails Step 1 "Greet someone"/);
   assert.equal(exitCode, 1);
 });

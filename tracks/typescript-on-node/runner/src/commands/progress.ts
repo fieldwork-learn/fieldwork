@@ -41,11 +41,11 @@ export async function progressCommand(args: string[]): Promise<number> {
 function progressBody(project: Project, checks: StepCheck[]): string {
   const completed = checks.filter(({ passed }) => passed).length;
   const total = project.steps.length;
-  const lines = project.steps.map((step, index) => {
+  const lines = project.steps.map((_, index) => {
     const check = checks[index];
-    if (check === undefined) return `- 🔒 ${stepLabel(index, step)}`;
-    if (check.passed) return `- ✅ ${stepLabel(index, step)}`;
-    return `- 🚧 ${stepLabel(index, step)}: Current Step (${check.details})`;
+    if (check === undefined) return `- 🔒 ${stepLabel(project.steps, index)}`;
+    if (check.passed) return `- ✅ ${stepLabel(project.steps, index)}`;
+    return `- 🚧 ${stepLabel(project.steps, index)}: Current Step (${check.details})`;
   });
   const commit = process.env.GITHUB_SHA ? ` at commit ${process.env.GITHUB_SHA}` : "";
 

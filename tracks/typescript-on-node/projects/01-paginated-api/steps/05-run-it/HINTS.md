@@ -18,7 +18,7 @@ A rejection from `listRepositories` travels up through your `for await` loop and
 
 ## "'error' is of type 'unknown'"
 
-JavaScript lets you `throw` anything, not just `Error` objects, so TypeScript types a caught error as `unknown`. Narrow it before reading `.message`, as you narrowed JSON in Step 3. [`instanceof`](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) is the check to use for a class.
+JavaScript lets you `throw` anything, not just `Error` objects, so TypeScript types a caught error as `unknown`. Narrow it before reading `.message`, as you narrowed JSON in Step 2. [`instanceof`](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowing) is the check to use for a class.
 
 ## The output contains `at …` lines
 

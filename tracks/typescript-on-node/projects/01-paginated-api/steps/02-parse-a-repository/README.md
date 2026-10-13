@@ -1,4 +1,4 @@
-# Step 3: Parse a repository
+# Step 2: Parse a repository
 
 GitHub sends seventy-odd fields for each repository, and the report only needs three: its name, its description and its star count. It also sends them in GitHub's own shape, such as `stargazers_count`, which isn't how the rest of your code should have to talk about stars.
 
@@ -21,6 +21,6 @@ In `src/repositories.ts`, write `parseRepository(json)`. It takes `unknown`, and
 
 Do it without `any` and without `as`. Both switch TypeScript's checking off, which is exactly what this Step is about not doing.
 
-The Step passes when `npm test` shows `✔ Step 3: Parse a repository`.
+The Step passes when `npm test` shows `✔ Step 2: Parse a repository`.
 
 Stuck? See [HINTS.md](HINTS.md).

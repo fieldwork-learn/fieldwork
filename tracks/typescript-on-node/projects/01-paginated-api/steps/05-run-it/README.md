@@ -1,4 +1,4 @@
-# Step 6: Run it from the terminal
+# Step 5: Run it from the terminal
 
 Everything is in place except the part people actually use: a command they run in a terminal. A good command-line tool does three things your teammates will rely on without thinking about it:
 
@@ -16,7 +16,7 @@ In `src/cli.ts`, write `main(args, io)`. `args` holds the command-line arguments
 - Without an owner, write a usage message containing `Usage` to `io.stderr`, such as `Usage: node src/cli.ts <owner>`, and return `2` without calling GitHub.
 - If anything fails while listing, write the error's message, not a stack trace, to `io.stderr` and return `1`. `main` itself should never reject.
 
-The Step passes when `npm test` shows `✔ Step 6: Run it from the terminal`. Then try the real thing:
+The Step passes when `npm test` shows `✔ Step 5: Run it from the terminal`. Then try the real thing:
 
 ```sh
 node src/cli.ts <your GitHub username>

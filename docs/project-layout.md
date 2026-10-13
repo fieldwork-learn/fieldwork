@@ -47,7 +47,7 @@ The first Project in each Track starts with a Step that has the Learner protect 
 ```
 
 - **The check:** the runner asks GitHub, through the adapter, whether `main` has active rules requiring a pull request and the "Fieldwork Steps" check. It accepts any ruleset that provides them. Type errors in Learner Code don't count against this Step.
-- **What the Learner sees:** the runner numbers Steps from 1, so the Learner sees this as "Step 1: Protect main". "Step 0" is only the maintainers' name for it.
+- **What the Learner sees:** "Step 0: Protect main". A Project that starts with Step 0 numbers its Steps from 0, so its first code Step is Step 1 and Step numbers match the folder prefixes (`01-…` is Step 1). Every other Project numbers its Steps from 1. The runner, `verify` and the generated README all number Steps this way.
 - **Its folder:** `steps/00-protect-main/` holds the instructions and Hints but no tests. The `hello-step-zero` fixture has a complete version to start from.
 - **Locally:** the check needs the GitHub CLI logged in.
 - **In CI:** the PR and progress workflows pass their `GITHUB_TOKEN` to it.

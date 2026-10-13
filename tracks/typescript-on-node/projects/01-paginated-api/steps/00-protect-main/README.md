@@ -1,4 +1,4 @@
-# Step 1: Protect main
+# Step 0: Protect main
 
 On a team, nobody pushes straight to `main`. Every change arrives through a pull request, and CI has to run on it before it can merge. That keeps `main` working, and gives every change a place to be reviewed.
 
@@ -37,7 +37,7 @@ There is no code to write. This Step passes once `main` requires:
 npm test
 ```
 
-When the ruleset is right, you see `✔ Step 1: Protect main`, and Step 2 becomes your Current Step. If not, the output says what `main` is still missing, for example `main does not require the "Fieldwork Steps" check`.
+When the ruleset is right, you see `✔ Step 0: Protect main`, and Step 1 becomes your Current Step. If not, the output says what `main` is still missing, for example `main does not require the "Fieldwork Steps" check`.
 
 From now on, `git push origin main` is refused. Every Step that follows reaches `main` through a pull request, the way it would on a team.
 

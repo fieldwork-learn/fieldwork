@@ -1,4 +1,4 @@
-# Step 4: Find the next page
+# Step 3: Find the next page
 
 The `nodejs` organisation has over two hundred public repositories, and GitHub sends at most 100 in one response. The rest are on later pages, and an API that splits a list into pages like this is called paginated. Almost every real API is, because nobody wants to send a hundred thousand records in one response.
 
@@ -23,6 +23,6 @@ In `src/repositories.ts`, write `nextPageUrl(link)`. It takes the value of a `Li
 - the URL whose `rel` is `next`, without its angle brackets, wherever it is in the list;
 - `undefined` when there's no next page, or no header at all.
 
-The Step passes when `npm test` shows `✔ Step 4: Find the next page`.
+The Step passes when `npm test` shows `✔ Step 3: Find the next page`.
 
 Stuck? See [HINTS.md](HINTS.md).

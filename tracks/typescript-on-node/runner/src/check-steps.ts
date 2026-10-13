@@ -1,6 +1,6 @@
 import { connectGitHub, GitHubError } from "./github.ts";
 import { missingProtection } from "./main-ruleset.ts";
-import { stepDir, stepPath, type Project, type StepDefinition } from "./project.ts";
+import { stepDir, stepNumber, stepPath, type Project, type StepDefinition } from "./project.ts";
 import { describeStepTests, runStepTests, stepTestsPass } from "./run-step-tests.ts";
 import { typeCheck, typeErrorsForStep, type TypeDiagnostic } from "./type-check.ts";
 
@@ -75,6 +75,7 @@ async function checkMainRuleset(index: number, step: StepDefinition): Promise<St
   };
 }
 
-export function stepLabel(index: number, step: StepDefinition): string {
-  return `Step ${index + 1}: ${step.title}`;
+/** The Step at `index` as the Learner sees it, e.g. `Step 1: Greet someone`. */
+export function stepLabel(steps: StepDefinition[], index: number): string {
+  return `Step ${stepNumber(steps, index)}: ${steps[index]!.title}`;
 }

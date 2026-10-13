@@ -49,7 +49,7 @@ Fill in `fieldwork.json`:
 - **`name`** is the Project's permanent identifier. It names its template repository (`fieldwork-learn/<Track prefix>-<name>`, see ADR-0003) and its version tags (`<name>@<version>`), so never change it once published.
 - **`version`** starts at `0.1.0`.
 - **`summary`, `assumes`, `concepts` and `gitPractices`** feed the monorepo README. Write `assumes` for a Learner deciding whether to start here.
-- **Each Step's `id`** is its folder name in `steps/` and `solutions/`. Prefix ids with a number so the folders sort in order. The runner numbers Steps from 1 by their position in this list, whatever the id says.
+- **Each Step's `id`** is its folder name in `steps/` and `solutions/`. Prefix ids with a number so the folders sort in order. Steps are numbered by their position in this list, whatever the id says: from 0 when the first Step is Step 0, otherwise from 1. Number the folders the same way, so `01-…` is Step 1.
 
 In `package.json`, set `name` to the Project's name, as `publish` ships it unchanged, and replace the fixture's `description` with one for maintainers (`publish` drops it). Otherwise leave `package.json` and `tsconfig.json` as the fixture has them unless the Project needs more. Any dependency you add must already be in the monorepo's `package-lock.json`, because `publish` builds the Project's lockfile from it offline. Add it to the monorepo first if it isn't.
 
