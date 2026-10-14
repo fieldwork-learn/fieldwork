@@ -4,7 +4,7 @@ How a Project is laid out in this monorepo, and which parts reach the Learner. T
 
 ## Where things live in the monorepo
 
-- `tooling/`: maintainer-side commands (`npm run fieldwork -- <command>`), such as `verify` and `publish`. Never shipped to Learners (ADR-0002).
+- `tooling/`: maintainer-side commands (`npm run fieldwork -- <command>`), such as `verify`, `publish` and `publish-templates`. Never shipped to Learners (ADR-0002).
 - `tracks/<track>/runner/`: that Track's Learner-side commands (`test`, `progress`, `setup`, `update`). Shipped inside every published Project of the Track. All their GitHub calls go through one adapter (`runner/src/github.ts`), which wraps the `gh` CLI and is replaced by a fake in tests.
 - `tracks/<track>/template/`: files every published Project of the Track gets as they are, such as the PR workflow and the devcontainer.
 - `tracks/<track>/track.json`: the Track's title, summary, the prerequisites a Learner installs, and the prefix of its template repositories' names.
@@ -101,6 +101,18 @@ README.md             generated from fieldwork.json
 The lockfile pins the dependency versions that `verify` ran the Project against. That way a Learner's first `npm install` doesn't add a lockfile to their first pull request, and CI grades them with the versions they tested with. `publish` makes it offline, from the monorepo's lockfile alone. So any dependency a Project declares must already be in the monorepo's `package-lock.json`, at a version that fits. Otherwise `publish` fails and says so.
 
 Both workflows and the devcontainer install with `npm ci`, which installs exactly what the lockfile says and fails if it no longer matches `package.json`. The PR workflow runs `npm test` and copies its output into the check summary. Exit code 1 means the Current Step is unfinished, which a pull request may leave it, so the check passes. Any other non-zero exit means the Steps could not run, and the check fails.
+
+## Publishing from CI
+
+Nobody publishes by hand. On every push to `main`, once the monorepo's checks have passed, CI runs `npm run fieldwork -- publish-templates`. For each Project whose version has no `<template repository name>@<version>` tag yet, it:
+
+1. creates the template repository (`fieldwork-learn/<Track prefix>-<name>`, ADR-0003) if it doesn't exist, and makes sure it is public, marked as a template, and described by the Project's `summary`;
+2. replaces the template repository's files with what `publish` produces, as one new commit on its default branch, so its history shows each version, and tags that commit `v<version>`;
+3. tags the monorepo commit it published from and pushes the tag.
+
+A Project whose version already has its tag is left alone, so merging a change without bumping the version publishes nothing. The monorepo tag is pushed last: if a run stops after updating the template repository, the next run sees the template's `v<version>` tag and only adds the monorepo tag.
+
+CI writes to template repositories as the `fieldwork-publisher` GitHub App, installed on the `fieldwork-learn` org with read and write access to repository administration and contents, so it can reach nothing outside the org. Its ID is the Actions variable `PUBLISH_APP_ID` and its private key the secret `PUBLISH_APP_PRIVATE_KEY`, both on the monorepo. Tags on the monorepo itself are pushed with the workflow's own token.
 
 ## Project Updates
 

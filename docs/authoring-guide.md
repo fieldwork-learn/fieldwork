@@ -171,6 +171,8 @@ Every pull request and push to `main` in the monorepo runs, in order:
 
 Run the same commands locally before opening a pull request, and it should pass. Don't merge a pull request whose checks fail: a Project is only published from `main`, so a broken one must never reach it.
 
+Once they pass on `main`, CI publishes every Project whose `version` hasn't been published yet to its template repository (see "Publishing from CI" in `docs/project-layout.md`). Merging is publishing: a pull request that bumps `version` reaches Learners as soon as it merges, and one that doesn't bump it reaches nobody.
+
 ## Borrowing a problem from an MIT source
 
 Some good problems already exist in MIT-licensed collections, such as Exercism's `problem-specifications` or Kotlin Koans (`research/free-learning-resources.md` lists more, with their licences). A Step may borrow from them, on these terms:
