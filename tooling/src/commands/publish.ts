@@ -9,10 +9,12 @@ const monorepoDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", ".
 /** Where the Track's Learner-side commands live in a published Project. */
 const publishedRunnerDir = ".fieldwork";
 
-interface ProjectMetadata {
+export interface ProjectMetadata {
   name: string;
   version: string;
   track: string;
+  /** One line for the Project's listing; fixtures may leave it out. */
+  summary?: string;
   steps: { id: string; title: string; check?: string }[];
 }
 
@@ -32,6 +34,16 @@ export async function publishCommand(args: string[]): Promise<number> {
     console.error(`Output directory is not empty: ${outDir}`);
     return 1;
   }
+  const metadata = writeTemplate(projectDir, outDir);
+  console.log(`Published ${metadata.name} ${metadata.version} to ${outDir}`);
+  return 0;
+}
+
+/**
+ * Writes a template repository's file tree for the Project in `projectDir`
+ * into `outDir`, and returns the Project's metadata.
+ */
+export function writeTemplate(projectDir: string, outDir: string): ProjectMetadata {
   mkdirSync(outDir, { recursive: true });
 
   const metadata = readJson(join(projectDir, "fieldwork.json")) as unknown as ProjectMetadata;
@@ -63,9 +75,7 @@ export async function publishCommand(args: string[]): Promise<number> {
   writeLockfile(outDir);
   cpSync(join(monorepoDir, ".nvmrc"), join(outDir, ".nvmrc"));
   writeFileSync(join(outDir, "README.md"), projectReadme(metadata));
-
-  console.log(`Published ${metadata.name} ${metadata.version} to ${outDir}`);
-  return 0;
+  return metadata;
 }
 
 /**

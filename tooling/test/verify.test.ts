@@ -160,7 +160,7 @@ test("fails when a minor version makes a published Step's tests fail its publish
 
   assert.match(
     output,
-    /hello-steps, Step 1 "Greet someone": its tests now fail its Reference Solution from hello-steps@0\.1\.0/,
+    /hello-steps, Step 1 "Greet someone": its tests now fail its Reference Solution from ts-hello-steps@0\.1\.0/,
   );
   assert.match(output, /bump the major version/);
   assert.equal(exitCode, 1);
@@ -221,7 +221,7 @@ test("fails when a minor version removes a published Step", () => {
 
   assert.match(
     output,
-    /hello-steps, Step 2 "Say goodbye" from hello-steps@0\.1\.0 is no longer Step 2.*bump the major version/,
+    /hello-steps, Step 2 "Say goodbye" from ts-hello-steps@0\.1\.0 is no longer Step 2.*bump the major version/,
   );
   assert.equal(exitCode, 1);
 });
@@ -241,7 +241,7 @@ test("fails when a minor version reorders published Steps", () => {
 
   assert.match(
     output,
-    /hello-steps, Step 1 "Greet someone" from hello-steps@0\.1\.0 is no longer Step 1.*bump the major version/,
+    /hello-steps, Step 1 "Greet someone" from ts-hello-steps@0\.1\.0 is no longer Step 1.*bump the major version/,
   );
   assert.equal(exitCode, 1);
 });
@@ -251,7 +251,7 @@ test("fails when the version is lower than the last published one", () => {
 
   const { exitCode, output } = runFieldwork(["verify", project]);
 
-  assert.match(output, /hello-steps, version 0\.0\.9 is lower than its last published version, hello-steps@0\.1\.0/);
+  assert.match(output, /hello-steps, version 0\.0\.9 is lower than its last published version, ts-hello-steps@0\.1\.0/);
   assert.equal(exitCode, 1);
 });
 
@@ -271,7 +271,7 @@ test("fails, naming the Step, when its published version has no Reference Soluti
 
   assert.match(
     output,
-    /hello-steps, Step 2 "Say goodbye": hello-steps@0\.1\.0 has no Reference Solution for it at solutions\/02-farewell\//,
+    /hello-steps, Step 2 "Say goodbye": ts-hello-steps@0\.1\.0 has no Reference Solution for it at solutions\/02-farewell\//,
   );
   assert.equal(exitCode, 1);
 });

@@ -2,6 +2,7 @@
 // monorepo CI and on maintainers' machines, and are never shipped to Learners.
 // Learner-side commands live in each Track's runner instead.
 import { publishCommand } from "./commands/publish.ts";
+import { publishTemplatesCommand } from "./commands/publish-templates.ts";
 import { readmeCommand } from "./commands/readme.ts";
 import { verifyCommand } from "./commands/verify.ts";
 
@@ -15,6 +16,10 @@ interface Command {
 const commands: Record<string, Command> = {
   verify: { summary: "Check Projects' Steps against their starter code and Reference Solutions", run: verifyCommand },
   publish: { summary: "Write a template repository's file tree for a Project", run: publishCommand },
+  "publish-templates": {
+    summary: "Publish each Project whose version isn't published yet to its template repository (monorepo CI)",
+    run: publishTemplatesCommand,
+  },
   readme: { summary: "Regenerate the monorepo README's Track and Project listings (--check to only compare)", run: readmeCommand },
 };
 

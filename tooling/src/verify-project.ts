@@ -2,7 +2,9 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, 
 import { join } from "node:path";
 import { compareVersions, isVersion, lastPublished, majorVersion } from "./published.ts";
 import { stepNumber } from "./step-number.ts";
-import { trackRunner, type TrackRunner } from "./tracks.ts";
+import { templateRepositoryName } from "./template-repository.ts";
+import { readTrack } from "./metadata.ts";
+import { repoRoot, trackRunner, type TrackRunner } from "./tracks.ts";
 
 interface StepDefinition {
   id: string;
@@ -96,7 +98,8 @@ function publishedStepProblems(
   if (!isVersion(metadata.version)) {
     return [`version "${metadata.version}" in fieldwork.json is not major.minor.patch`];
   }
-  const published = lastPublished(projectDir, metadata.name);
+  const { repositoryPrefix } = readTrack(join(repoRoot, "tracks", metadata.track), repoRoot);
+  const published = lastPublished(projectDir, templateRepositoryName(repositoryPrefix, metadata.name));
   if (published === undefined) return [];
   if (compareVersions(metadata.version, published.version) < 0) {
     return [

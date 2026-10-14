@@ -1,6 +1,6 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { repoRoot, trackProjects } from "../tracks.ts";
+import { monorepoProjects } from "../tracks.ts";
 import { verifyProject } from "../verify-project.ts";
 
 /**
@@ -28,9 +28,4 @@ export async function verifyCommand(args: string[]): Promise<number> {
     for (const problem of problems) console.log(`  ${project}, ${problem}`);
   }
   return failed === 0 ? 0 : 1;
-}
-
-function monorepoProjects(): string[] {
-  const tracksDir = join(repoRoot, "tracks");
-  return readdirSync(tracksDir).flatMap((track) => trackProjects(join(tracksDir, track)));
 }

@@ -64,7 +64,7 @@ export function publishedHelloSteps(edits: Record<string, string>, publishedWith
   git(repo, ["init", "--quiet"]);
   git(repo, ["add", "."]);
   git(repo, ["commit", "--quiet", "-m", "Publish hello-steps 0.1.0"]);
-  git(repo, ["tag", "hello-steps@0.1.0"]);
+  git(repo, ["tag", "ts-hello-steps@0.1.0"]);
   for (const path of publishedWithout) cpSync(join(helloSteps, path), join(dir, path), { recursive: true });
   overwrite(dir, edits);
   return dir;

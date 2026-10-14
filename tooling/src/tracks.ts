@@ -34,6 +34,12 @@ export function trackRunner(track: string): TrackRunner | undefined {
   return tracks[track];
 }
 
+/** Every Project in the monorepo, Track by Track. */
+export function monorepoProjects(): string[] {
+  const tracksDir = join(repoRoot, "tracks");
+  return readdirSync(tracksDir).flatMap((track) => trackProjects(join(tracksDir, track)));
+}
+
 /** The real Projects in a Track's folder (tracks/<track>/projects/*), in folder-name order. */
 export function trackProjects(trackDir: string): string[] {
   const projectsDir = join(trackDir, "projects");

@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 
 /**
  * A Project as it was last published. Publishing tags the monorepo commit it
- * published from as `<name>@<version>`, so Git holds every published version.
+ * published from (see `publishedTag`), so Git holds every published version.
  */
 export interface PublishedProject {
   tag: string;
@@ -14,7 +14,11 @@ export interface PublishedProject {
   extractSolutions: (dir: string) => void;
 }
 
-/** The highest published version of the Project in `projectDir`, or undefined if it was never published. */
+/**
+ * The highest published version of the Project in `projectDir`, or undefined
+ * if it was never published. `name` is what its tags start with before the
+ * `@`: its template repository's name.
+ */
 export function lastPublished(projectDir: string, name: string): PublishedProject | undefined {
   // Outside a Git repository there is no publish history to compare with.
   const repoRoot = git(projectDir, ["rev-parse", "--show-toplevel"]);
