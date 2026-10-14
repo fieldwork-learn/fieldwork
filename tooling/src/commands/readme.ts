@@ -1,20 +1,11 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { readJson, readTrack, requireString, requireStrings, type TrackMetadata } from "../metadata.ts";
 import { useThisTemplateUrl } from "../template-repository.ts";
 import { repoRoot, trackProjects } from "../tracks.ts";
 
 const startMarker = "<!-- fieldwork:tracks:start -->";
 const endMarker = "<!-- fieldwork:tracks:end -->";
-
-/** A Track's own metadata, in tracks/<track>/track.json. */
-interface TrackMetadata {
-  title: string;
-  summary: string;
-  /** What a Learner installs before starting any of the Track's Projects. */
-  prerequisites: string[];
-  /** Starts the name of each of the Track's template repositories, e.g. "ts" (ADR-0003). */
-  repositoryPrefix: string;
-}
 
 /** The fields of a Project's fieldwork.json that its listing shows. */
 interface ProjectListing {
@@ -75,7 +66,7 @@ function listings(root: string): string {
 }
 
 function trackSection(root: string, trackDir: string): string {
-  const track = readTrack(root, join(trackDir, "track.json"));
+  const track = readTrack(trackDir, root);
   const projects = trackProjects(trackDir).map((dir) => readProject(root, join(dir, "fieldwork.json")));
 
   return [
@@ -101,17 +92,6 @@ function bullets(items: string[]): string {
   return items.map((item) => `- ${item}`).join("\n");
 }
 
-function readTrack(root: string, path: string): TrackMetadata {
-  const json = readJson(path);
-  const where = relative(root, path);
-  return {
-    title: requireString(json, "title", where),
-    summary: requireString(json, "summary", where),
-    prerequisites: requireStrings(json, "prerequisites", where),
-    repositoryPrefix: requireString(json, "repositoryPrefix", where),
-  };
-}
-
 function readProject(root: string, path: string): ProjectListing {
   const json = readJson(path);
   const where = relative(root, path);
@@ -122,22 +102,4 @@ function readProject(root: string, path: string): ProjectListing {
     concepts: requireStrings(json, "concepts", where),
     gitPractices: requireStrings(json, "gitPractices", where),
   };
-}
-
-function readJson(path: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
-}
-
-function requireString(json: Record<string, unknown>, field: string, where: string): string {
-  const value = json[field];
-  if (typeof value !== "string" || value.trim() === "") throw new Error(`${where} needs "${field}": a non-empty string.`);
-  return value;
-}
-
-function requireStrings(json: Record<string, unknown>, field: string, where: string): string[] {
-  const value = json[field];
-  if (!Array.isArray(value) || value.length === 0 || value.some((item) => typeof item !== "string" || item.trim() === "")) {
-    throw new Error(`${where} needs "${field}": a non-empty list of strings.`);
-  }
-  return value as string[];
 }

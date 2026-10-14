@@ -46,7 +46,7 @@ Fill in `fieldwork.json`:
 }
 ```
 
-- **`name`** is the Project's permanent identifier. It names its template repository (`fieldwork-learn/<Track prefix>-<name>`, see ADR-0003) and its version tags (`<name>@<version>`), so never change it once published.
+- **`name`** is the Project's permanent identifier. It names its template repository (`fieldwork-learn/<Track prefix>-<name>`, see ADR-0003) and its version tags (`<Track prefix>-<name>@<version>`), so never change it once published.
 - **`version`** starts at `0.1.0`.
 - **`summary`, `assumes`, `concepts` and `gitPractices`** feed the monorepo README. Write `assumes` for a Learner deciding whether to start here.
 - **Each Step's `id`** is its folder name in `steps/` and `solutions/`. Prefix ids with a number so the folders sort in order. Steps are numbered by their position in this list, whatever the id says: from 0 when the first Step is Step 0, otherwise from 1. Number the folders the same way, so `01-…` is Step 1.
@@ -150,7 +150,7 @@ A Project's `version` follows semver, because Project Updates rely on it to know
 
 The rule underneath: **within a major version, a published Step's tests may be fixed but never made stricter.** A Learner who completed a Step must still pass it after a patch or minor update.
 
-`verify` enforces this. It always fails a version that isn't `major.minor.patch`. It then compares the Project with its last published version (the highest `<name>@<version>` tag):
+`verify` enforces this. It always fails a version that isn't `major.minor.patch`. It then compares the Project with its last published version (the highest `<Track prefix>-<name>@<version>` tag):
 
 - The version must not be lower than the published one.
 - Within the same major version, each published Step must still be in the same place with the same `id`, so removing or reordering a Step fails.

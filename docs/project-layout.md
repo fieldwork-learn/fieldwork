@@ -74,7 +74,7 @@ A Project's `version` in `fieldwork.json` follows semver, as Project Updates rel
 - **Minor:** adds Steps at the end, or changes Hints and instructions.
 - **Patch:** fixes only.
 
-Publishing a Project to its template repository (from monorepo CI, #21) tags the monorepo commit it published from as `<name>@<version>`, for example `hello-steps@0.1.0`. `verify` compares the Project with its highest tagged version. If the Project's current version has the same major version, then for each published Step N:
+Publishing a Project to its template repository (from monorepo CI, #21) tags the monorepo commit it published from as `<template repository name>@<version>`, for example `ts-hello-steps@0.1.0`. The Track prefix keeps same-named Projects in different Tracks from sharing tags. `verify` compares the Project with its highest tagged version. If the Project's current version has the same major version, then for each published Step N:
 
 - Step N must still be Step N, with the same `id`.
 - Step N's Reference Solution **as published** must pass Steps 1..N as they stand now. If it doesn't, the Step got stricter, and a Learner who completed it would fail it after updating.
