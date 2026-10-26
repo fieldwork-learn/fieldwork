@@ -1,10 +1,11 @@
 {
   "name": "paginated-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "track": "typescript-on-node",
   "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page.",
   "assumes": [
     "JavaScript, including promises and async/await",
+    "Reading everyday TypeScript: the Track's before-you-start list above",
     "Running commands in a terminal",
     "Committing with Git, at least a little"
   ],

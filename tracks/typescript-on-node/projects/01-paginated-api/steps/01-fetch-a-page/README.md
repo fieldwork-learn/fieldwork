@@ -16,6 +16,8 @@ It works for organisations as well as users. `per_page=100` asks for as many as 
 
 ## Before you start
 
+This is the first Step with code in it, and its starter code and tests are written in TypeScript. If you haven't yet, read [BEFORE-YOU-START.md](../../BEFORE-YOU-START.md) and try its check: this Step won't stop to explain the syntax it covers.
+
 Make a branch for this Step, as described in the Workflow section of this repository's README. Every Step from here on reaches `main` through a pull request.
 
 ## Testing code that talks to the network

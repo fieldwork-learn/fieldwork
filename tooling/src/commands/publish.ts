@@ -2,12 +2,16 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readBeforeYouStart, type BeforeYouStart } from "../metadata.ts";
 import { stepNumber } from "../step-number.ts";
 
 const monorepoDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
 /** Where the Track's Learner-side commands live in a published Project. */
 const publishedRunnerDir = ".fieldwork";
+
+/** Where the Track's before-you-start document lives in a published Project. */
+const beforeYouStartFile = "BEFORE-YOU-START.md";
 
 export interface ProjectMetadata {
   name: string;
@@ -57,6 +61,8 @@ export function writeTemplate(projectDir: string, outDir: string): ProjectMetada
   const trackDir = join(monorepoDir, "tracks", metadata.track);
   cpSync(join(trackDir, "runner", "src"), join(outDir, publishedRunnerDir), { recursive: true });
   cpSync(join(trackDir, "template"), outDir, { recursive: true });
+  const beforeYouStart = readBeforeYouStart(trackDir);
+  if (beforeYouStart !== undefined) cpSync(beforeYouStart.path, join(outDir, beforeYouStartFile));
 
   // Learners get the Node and npm versions the monorepo is built and graded with.
   const monorepoPackage = readJson(join(monorepoDir, "package.json"));
@@ -74,7 +80,7 @@ export function writeTemplate(projectDir: string, outDir: string): ProjectMetada
   writeJson(join(outDir, "package.json"), packageJson);
   writeLockfile(outDir);
   cpSync(join(monorepoDir, ".nvmrc"), join(outDir, ".nvmrc"));
-  writeFileSync(join(outDir, "README.md"), projectReadme(metadata));
+  writeFileSync(join(outDir, "README.md"), projectReadme(metadata, beforeYouStart));
   return metadata;
 }
 
@@ -167,12 +173,25 @@ git branch -d step-1
 One pull request can cover several Steps. Once the workflow feels familiar, do two or three Steps on one branch before opening it.
 `;
 
-function projectReadme({ name, version, steps }: ProjectMetadata): string {
+/** Put first in the README, so a Learner can't start a Step without having seen it. */
+function beforeYouStartSection(document: BeforeYouStart): string {
+  return `
+## Before you start
+
+Make sure you can read these first. The starter code and tests use them from the first Step without explaining them:
+
+${document.items.map((item) => `- ${item}`).join("\n")}
+
+If any of them are new to you, read [${beforeYouStartFile}](${beforeYouStartFile}) before Step 1. It explains each one briefly, links to where you can learn it, and ends with a short check that you're ready. The Steps teach everything else.
+`;
+}
+
+function projectReadme({ name, version, steps }: ProjectMetadata, beforeYouStart: BeforeYouStart | undefined): string {
   const hasStepZero = steps.some(({ check }) => check === "main-ruleset");
   return `# ${name}
 
 Version ${version}. Work through the Steps below in order: each one is a small set of failing tests you make pass.
-
+${beforeYouStart === undefined ? "" : beforeYouStartSection(beforeYouStart)}
 ## Getting started
 
 You need Node 24 and npm (see \`.nvmrc\`). If your local setup gives you trouble, open this repository in its devcontainer instead.
