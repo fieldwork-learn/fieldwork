@@ -81,6 +81,31 @@ test("readme lists each Track's prerequisites and its Projects' metadata, with a
   assert.match(text, /\[Use this template\]\(https:\/\/github\.com\/fieldwork-learn\/ts-paginated-api\/generate\)/);
 });
 
+test("readme puts a Track's before-you-start list ahead of its install prerequisites, linking the full document", () => {
+  const root = monorepo({ "typescript-on-node": { track: typescriptTrack } });
+  writeFileSync(
+    join(root, "tracks", "typescript-on-node", "before-you-start.md"),
+    "# Before you start\n\nIntro.\n\n## 1. Type annotations\n\nText.\n\n## 2. Union types\n\nText.\n\n## Are you ready?\n\nA check.\n",
+  );
+
+  assert.equal(runFieldwork(["readme", root]).exitCode, 0);
+
+  const text = readme(root);
+  const link = text.indexOf("](tracks/typescript-on-node/before-you-start.md)");
+  assert.ok(link !== -1, "links the document");
+  assert.match(text, /- Type annotations\n- Union types\n\n/);
+  assert.doesNotMatch(text, /- Are you ready\?/, "only the numbered sections are listed");
+  assert.ok(link < text.indexOf("Node 24 LTS"), "comes before the install prerequisites");
+});
+
+test("readme leaves out the before-you-start list for a Track without one", () => {
+  const root = monorepo({ "typescript-on-node": { track: typescriptTrack } });
+
+  assert.equal(runFieldwork(["readme", root]).exitCode, 0);
+
+  assert.doesNotMatch(readme(root), /before-you-start/);
+});
+
 test("readme keeps the hand-written parts of the README around the generated listings", () => {
   const root = monorepo({ "typescript-on-node": { track: typescriptTrack } });
 

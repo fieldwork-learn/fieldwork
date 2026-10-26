@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { readJson, readTrack, requireString, requireStrings, type TrackMetadata } from "../metadata.ts";
+import { readBeforeYouStart, readJson, readTrack, requireString, requireStrings, type TrackMetadata } from "../metadata.ts";
 import { useThisTemplateUrl } from "../template-repository.ts";
 import { repoRoot, trackProjects } from "../tracks.ts";
 
@@ -72,9 +72,18 @@ function trackSection(root: string, trackDir: string): string {
   return [
     `## ${track.title}`,
     track.summary,
+    ...beforeYouStartSection(root, trackDir),
     `Before you start, install:\n\n${bullets(track.prerequisites)}`,
     ...(projects.length === 0 ? ["No Projects yet."] : projects.map((project) => projectSection(track, project))),
   ].join("\n\n");
+}
+
+function beforeYouStartSection(root: string, trackDir: string): string[] {
+  const document = readBeforeYouStart(trackDir);
+  if (document === undefined) return [];
+  return [
+    `**Before you start, make sure you can read these.** The Projects use them from the first Step without explaining them. [This guide](${relative(root, document.path)}) explains each one, links to where you can learn it, and ends with a check that you're ready:\n\n${bullets(document.items)}`,
+  ];
 }
 
 function projectSection(track: TrackMetadata, { name, summary, assumes, concepts, gitPractices }: ProjectListing): string {

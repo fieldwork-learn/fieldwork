@@ -31,6 +31,17 @@ No Projects yet.
 
 TypeScript and modern Node together, for developers coming from JavaScript. Steps are checked by the type-checker as well as the tests, and the tests use Node's built-in test runner.
 
+**Before you start, make sure you can read these.** The Projects use them from the first Step without explaining them. [This guide](tracks/typescript-on-node/before-you-start.md) explains each one, links to where you can learn it, and ends with a check that you're ready:
+
+- Type annotations
+- The basic types
+- Object types and interfaces
+- Type aliases and function types
+- Union types
+- Reading generic types
+- The non-null assertion, `!`
+- How a TypeScript project runs
+
 Before you start, install:
 
 - Node 24 LTS, with the npm that comes with it. Each Project pins both, and `.nvmrc` names the Node version.
@@ -44,6 +55,7 @@ A CLI that lists every public repository of a GitHub user or organisation, readi
 **Assumes you know:**
 
 - JavaScript, including promises and async/await
+- Reading everyday TypeScript: the Track's before-you-start list above
 - Running commands in a terminal
 - Committing with Git, at least a little
 

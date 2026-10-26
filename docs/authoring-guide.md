@@ -22,6 +22,7 @@ A Project has four kinds of content. The Learner owns Learner Code; the maintain
 - **Each Step builds on the code from the last,** so by the final Step the Learner has one complete, working piece of software.
 - **Order matters, and is hard to change later.** Reordering or removing a published Step is a major version (see [Versions](#versions)), so settle the order before the first publish.
 - **Say what the Project assumes.** A Project should stand on its own wherever it can, stating what the Learner already knows, instead of needing earlier Projects.
+- **Teach it or list it.** If a Step's starter code or tests use language syntax the Step doesn't explain, it must be in the Track's `before-you-start.md` (see "Before you start" in `docs/project-layout.md`). Otherwise explain it in the Step. A Learner should never meet unexplained syntax they weren't told to learn first.
 - **The first Project in a Track starts with Step 0,** which has the Learner protect `main` by hand. Later Projects don't, and their README tells the Learner to run `npm run setup` instead. See "Step 0: protect main" in `docs/project-layout.md`.
 
 ### 2. Create the folder

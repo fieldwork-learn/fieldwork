@@ -8,6 +8,7 @@ How a Project is laid out in this monorepo, and which parts reach the Learner. T
 - `tracks/<track>/runner/`: that Track's Learner-side commands (`test`, `progress`, `setup`, `update`). Shipped inside every published Project of the Track. All their GitHub calls go through one adapter (`runner/src/github.ts`), which wraps the `gh` CLI and is replaced by a fake in tests.
 - `tracks/<track>/template/`: files every published Project of the Track gets as they are, such as the PR workflow and the devcontainer.
 - `tracks/<track>/track.json`: the Track's title, summary, the prerequisites a Learner installs, and the prefix of its template repositories' names.
+- `tracks/<track>/before-you-start.md` (optional): what a Learner must already know to start any of the Track's Projects, each with a brief explanation and a link to learn it. See "Before you start" below.
 - `tracks/<track>/projects/<project>/`: real Projects. The README lists them in folder-name order, so number the folders (`01-…`, `02-…`) to set it.
 - `tracks/<track>/fixtures/<project>/`: small Projects used to test the tooling, laid out exactly like real ones.
 
@@ -37,6 +38,18 @@ The root `README.md` is the Learner's front door. Between its `<!-- fieldwork:tr
 - **The "Use this template" link** points to the Project's template repository: `https://github.com/fieldwork-learn/<repositoryPrefix>-<name>/generate`, where `repositoryPrefix` is the Track's (ADR-0003). `tooling/src/template-repository.ts` builds the name, and nothing else should.
 
 After changing any of these, run `npm run fieldwork -- readme` and commit the result. Monorepo CI runs `npm run fieldwork -- readme --check`, which fails if the README has drifted from the metadata.
+
+## Before you start
+
+A Track's `before-you-start.md` lists what its Projects use without teaching, such as the everyday TypeScript in the TypeScript-on-Node Track's starter code and tests. Each thing to know is a numbered section, `## 1. Type annotations`, with a brief explanation and a link to where a Learner can learn it. Other sections, such as a closing check, aren't numbered.
+
+It is shown where a Learner can't miss it:
+
+- **The monorepo README** lists the numbered sections' titles under each Track, before its install prerequisites, and links the document.
+- **Every published Project** gets a copy as `BEFORE-YOU-START.md`, and its README opens with a "Before you start" section listing the same titles and linking it, ahead of "Getting started".
+- **The first code Step's README** links it again, in its "Before you start" section.
+
+`readme` and `publish` read the titles, so after editing the document, run `npm run fieldwork -- readme` and bump each of the Track's Projects' versions (a minor, as it is new instructions).
 
 ## Step 0: protect main
 

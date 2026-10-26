@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 /** A Track's own metadata, in tracks/<track>/track.json. */
@@ -22,6 +22,24 @@ export function readTrack(trackDir: string, root: string): TrackMetadata {
     prerequisites: requireStrings(json, "prerequisites", where),
     repositoryPrefix: requireString(json, "repositoryPrefix", where),
   };
+}
+
+/**
+ * A Track's tracks/<track>/before-you-start.md: what a Learner should know
+ * before any of its Projects, with links to learn it. Optional.
+ */
+export interface BeforeYouStart {
+  path: string;
+  /** The document's numbered `## 1. …` headings, without their numbers. */
+  items: string[];
+}
+
+export function readBeforeYouStart(trackDir: string): BeforeYouStart | undefined {
+  const path = join(trackDir, "before-you-start.md");
+  if (!existsSync(path)) return undefined;
+  const items = [...readFileSync(path, "utf8").matchAll(/^## \d+\. (.+)$/gm)].map((match) => match[1]!.trim());
+  if (items.length === 0) throw new Error(`${path} needs numbered sections (\`## 1. …\`), one for each thing to know.`);
+  return { path, items };
 }
 
 export function readJson(path: string): Record<string, unknown> {

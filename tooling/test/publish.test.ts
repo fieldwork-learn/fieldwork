@@ -69,6 +69,19 @@ test("a published Project holds starter code as Learner Code, Project Content an
   for (const file of readdirSync(outDir, { recursive: true, encoding: "utf8" })) assert.doesNotMatch(file, /solutions/);
 });
 
+test("a published Project ships its Track's before-you-start document, and its README sends the Learner there first", () => {
+  const outDir = freshOutDir();
+  assert.equal(publish(helloSteps, outDir).exitCode, 0);
+
+  const trackDocument = join(toolingDir, "..", "tracks", "typescript-on-node", "before-you-start.md");
+  assert.equal(readFileSync(join(outDir, "BEFORE-YOU-START.md"), "utf8"), readFileSync(trackDocument, "utf8"));
+  const readme = readFileSync(join(outDir, "README.md"), "utf8");
+  const section = readme.indexOf("## Before you start");
+  assert.ok(section !== -1 && section < readme.indexOf("## Getting started"), "comes before Getting started");
+  assert.match(readme, /\]\(BEFORE-YOU-START\.md\)/);
+  assert.match(readme, /- Type annotations\n/);
+});
+
 test("a Step's attribution notice is published with it, so borrowed material keeps its licence notice", () => {
   const notice = "# Notice\n\nAdapted from an MIT-licensed problem spec. Copyright (c) Someone.\n";
   const project = brokenHelloSteps({ "steps/01-greet/NOTICE.md": notice });
