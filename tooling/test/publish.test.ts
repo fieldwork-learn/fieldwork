@@ -218,8 +218,23 @@ test("the README of a later Project in a Track leaves the Git walkthrough to the
   assert.equal(publish(helloSteps, outDir).exitCode, 0);
 
   const readme = readFileSync(join(outDir, "README.md"), "utf8");
-  assert.doesNotMatch(readme, /git push -u origin /);
+  assert.doesNotMatch(readme, /## Workflow: one Step, by hand/);
   assert.match(readme, /## Workflow\n/);
+});
+
+test("every Project's README shows the faster workflow with gh, after the workflow by hand, with several Steps in one pull request", () => {
+  for (const project of [helloStepZero, helloSteps]) {
+    const outDir = freshOutDir();
+    assert.equal(publish(project, outDir).exitCode, 0);
+
+    const readme = readFileSync(join(outDir, "README.md"), "utf8");
+    const section = readme.slice(readme.indexOf("## Workflow: faster, with gh"));
+    assert.ok(readme.indexOf("## Workflow: faster, with gh") > readme.indexOf("## Workflow"), project);
+    for (const command of [/gh pr create --fill/, /gh pr checks --watch/, /gh pr merge --merge --delete-branch/]) {
+      assert.match(section, command, project);
+    }
+    assert.match(section, /several Steps/, project);
+  }
 });
 
 test("a published Project has a workflow that records progress after each merge to main without committing to it", () => {

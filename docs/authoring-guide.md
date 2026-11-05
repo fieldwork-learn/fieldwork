@@ -93,7 +93,9 @@ Rules for tests:
   export type Cases = [Expect<Equal<Pair<number>, [number, number]>>];
   ```
 
-  The starter code must declare the type wrongly (for example, `export type Pair<T> = unknown;`), so the Step fails until the Learner fixes it.
+  The starter code must declare the type wrongly (for example, `export type Pair<T> = unknown;`), so the Step fails until the Learner fixes it. A type-only Step added in a later version can't have starter code (see above), so a missing file fails it instead.
+
+  Assertions can also be lines that must or mustn't compile, which a Learner can read without first learning conditional types: a plain line such as `const pair: Pair<number> = [1, 2];` must compile, and a line after `// @ts-expect-error` must not, or TypeScript reports the comment as unused. Put them inside functions that are never called, so nothing runs. Either way, the Step's README must explain how its assertions work ("teach it or list it"). Step 6 of paginated-api is an example.
 
 Run the Steps against the starter code as a Learner would, from the Project folder:
 
