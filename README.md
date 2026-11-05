@@ -50,7 +50,7 @@ Before you start, install:
 
 ### paginated-api
 
-A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page.
+A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page and retrying with backoff when it fails.
 
 **Assumes you know:**
 
@@ -69,11 +69,18 @@ A CLI that lists every public repository of a GitHub user or organisation, readi
 - Async generators and for await
 - node:test and node:assert
 - Exit codes, stdout and stderr in a Node CLI
+- Discriminated unions, literal types and readonly
+- Testing types with @ts-expect-error
+- Retries with exponential backoff and Retry-After
+- Wrapping a function to add behaviour
+- Optional properties and ??
 
 **Git practices:**
 
 - Protect main with a ruleset
 - Branch, commit, push, open a pull request and merge, by hand
+- The same, faster, with gh
+- Several Steps in one pull request
 
 [Use this template](https://github.com/fieldwork-learn/ts-paginated-api/generate) to create your own repository for this Project, then follow its README.
 <!-- fieldwork:tracks:end -->

@@ -1,8 +1,8 @@
 {
   "name": "paginated-api",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "track": "typescript-on-node",
-  "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page.",
+  "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page and retrying with backoff when it fails.",
   "assumes": [
     "JavaScript, including promises and async/await",
     "Reading everyday TypeScript: the Track's before-you-start list above",
@@ -17,11 +17,18 @@
     "null versus undefined, and noUncheckedIndexedAccess",
     "Async generators and for await",
     "node:test and node:assert",
-    "Exit codes, stdout and stderr in a Node CLI"
+    "Exit codes, stdout and stderr in a Node CLI",
+    "Discriminated unions, literal types and readonly",
+    "Testing types with @ts-expect-error",
+    "Retries with exponential backoff and Retry-After",
+    "Wrapping a function to add behaviour",
+    "Optional properties and ??"
   ],
   "gitPractices": [
     "Protect main with a ruleset",
-    "Branch, commit, push, open a pull request and merge, by hand"
+    "Branch, commit, push, open a pull request and merge, by hand",
+    "The same, faster, with gh",
+    "Several Steps in one pull request"
   ],
   "steps": [
     { "id": "00-protect-main", "title": "Protect main", "check": "main-ruleset" },
@@ -29,6 +36,10 @@
     { "id": "02-parse-a-repository", "title": "Parse a repository" },
     { "id": "03-find-the-next-page", "title": "Find the next page" },
     { "id": "04-read-every-page", "title": "Read every page" },
-    { "id": "05-run-it", "title": "Run it from the terminal" }
+    { "id": "05-run-it", "title": "Run it from the terminal" },
+    { "id": "06-describe-a-retry", "title": "Describe a retry" },
+    { "id": "07-decide-when-to-retry", "title": "Decide when to retry" },
+    { "id": "08-retry-a-request", "title": "Retry a request" },
+    { "id": "09-retry-from-the-cli", "title": "Retry from the CLI" }
   ]
 }
