@@ -170,7 +170,38 @@ git branch -d step-1
 
 \`git pull\` brings in the merge, and \`git branch -d\` deletes your local copy of the merged branch. You're ready to start the next Step at 1.
 
-One pull request can cover several Steps. Once the workflow feels familiar, do two or three Steps on one branch before opening it.
+One pull request can cover several Steps. Once the workflow feels familiar, see "Several Steps in one pull request" below.
+`;
+
+/** For every Project, after the workflow by hand: the same workflow, with gh doing the GitHub half. */
+const ghWorkflowSection = `
+## Workflow: faster, with gh
+
+Once the workflow by hand feels routine, the GitHub CLI can do the GitHub half of it from your terminal, so you don't need the browser. It's the same workflow: a branch, a pull request, the check, a merge. Here it is for a branch covering Steps 2 and 3:
+
+\`\`\`sh
+git switch main
+git pull
+git switch -c steps-2-3
+# make the Steps pass, committing as you go
+git push -u origin steps-2-3
+gh pr create --fill
+gh pr checks --watch
+gh pr merge --merge --delete-branch
+git switch main
+git pull
+\`\`\`
+
+- \`gh pr create --fill\` opens a pull request from your branch against \`main\`, using your commit messages for its title and description. Leave out \`--fill\` to be asked for them instead.
+- \`gh pr checks --watch\` shows the **Fieldwork Steps** check, and waits until it finishes. \`gh pr view --web\` opens the pull request in your browser, where the check's summary shows which Steps it passes.
+- \`gh pr merge --merge --delete-branch\` merges it, just as **Merge pull request** does, and deletes the branch on GitHub and on your machine. Run it once the check has passed: \`main\`'s ruleset won't let it merge before.
+- \`git switch main\` and \`git pull\` bring the merge into your own \`main\`, as before.
+
+### Several Steps in one pull request
+
+A pull request can carry several Steps. Name the branch for the work, not for one Step, make two or three Steps pass, committing after each, and then open the pull request. The check's summary lists every Step it passes, and they all become Completed Steps when it merges.
+
+The cost is review. On a team, a small pull request is quick to review well and a big one isn't, so keep each one to work that belongs together, such as the Steps that build one feature.
 `;
 
 /** Put first in the README, so a Learner can't start a Step without having seen it. */
@@ -213,7 +244,7 @@ ${steps.map(({ id, title }, index) => `- [Step ${stepNumber(steps, index)}: ${ti
 - \`steps/<step>/\`: each Step's instructions, Hints and tests.
 - \`fieldwork.json\`: this Project's version and its list of Steps.
 - \`.fieldwork/\`: the commands behind \`npm test\`.
-${hasStepZero ? gitWalkthroughSection : workflowSummarySection}
+${hasStepZero ? gitWalkthroughSection : workflowSummarySection}${ghWorkflowSection}
 ## Updates
 
 This Project gets fixes and new Steps over time. To check for a newer version (this needs the GitHub CLI, logged in with \`gh auth login\`):
