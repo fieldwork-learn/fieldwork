@@ -1,8 +1,8 @@
 {
   "name": "paginated-api",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "track": "typescript-on-node",
-  "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page and retrying with backoff when it fails.",
+  "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page, retrying with backoff when it fails, and caching on disk.",
   "assumes": [
     "JavaScript, including promises and async/await",
     "Reading everyday TypeScript: the Track's before-you-start list above",
@@ -22,7 +22,10 @@
     "Testing types with @ts-expect-error",
     "Retries with exponential backoff and Retry-After",
     "Wrapping a function to add behaviour",
-    "Optional properties and ??"
+    "Optional properties and ??",
+    "node:fs/promises, temporary directories and atomic writes",
+    "HTTP caching: Cache-Control, ETag and conditional requests",
+    "Narrowing a caught error to read its code"
   ],
   "gitPractices": [
     "Protect main with a ruleset",
@@ -40,6 +43,9 @@
     { "id": "06-describe-a-retry", "title": "Describe a retry" },
     { "id": "07-decide-when-to-retry", "title": "Decide when to retry" },
     { "id": "08-retry-a-request", "title": "Retry a request" },
-    { "id": "09-retry-from-the-cli", "title": "Retry from the CLI" }
+    { "id": "09-retry-from-the-cli", "title": "Retry from the CLI" },
+    { "id": "10-cache-a-response", "title": "Cache a response on disk" },
+    { "id": "11-answer-from-the-cache", "title": "Answer from the cache" },
+    { "id": "12-cache-from-the-cli", "title": "Cache from the CLI" }
   ]
 }

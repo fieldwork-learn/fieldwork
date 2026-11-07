@@ -50,7 +50,7 @@ Before you start, install:
 
 ### paginated-api
 
-A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page and retrying with backoff when it fails.
+A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page, retrying with backoff when it fails, and caching on disk.
 
 **Assumes you know:**
 
@@ -74,6 +74,9 @@ A CLI that lists every public repository of a GitHub user or organisation, readi
 - Retries with exponential backoff and Retry-After
 - Wrapping a function to add behaviour
 - Optional properties and ??
+- node:fs/promises, temporary directories and atomic writes
+- HTTP caching: Cache-Control, ETag and conditional requests
+- Narrowing a caught error to read its code
 
 **Git practices:**
 
