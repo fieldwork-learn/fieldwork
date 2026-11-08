@@ -6,7 +6,7 @@ Make it optional: `cache?: Cache`, with the `?`.
 
 ## The empty `XDG_CACHE_HOME` test gets `paginated-api` on its own
 
-`??` kept the empty string, so the cache went in `paginated-api` in the current folder. `||` replaces `""` too. See "`||` and `??` replace different things" in the README.
+`??` kept the empty string, so the cache went in `paginated-api` in the current folder. `||` replaces `""` too. See "Choosing between `||` and `??`" in the README.
 
 ## The second run gets `200` answers, not `304`
 
@@ -14,7 +14,7 @@ Check that `main` uses the `Fetch` from `withCache`, not the one from `withRetry
 
 ## How do the cache and the retries fit together?
 
-Wrap the retrying `Fetch` in `withCache`: `withCache(withRetry(io.fetch, …), io.cache, io.now ?? Date.now)`, when `io.cache` is given. Use the retrying `Fetch` on its own when it isn't.
+Build the retrying `Fetch` first, then wrap it in `withCache`, with `io.cache` and a clock that falls back to `Date.now`. Do that only when `io.cache` is given. When it isn't, use the retrying `Fetch` on its own.
 
 ## Running it for real leaves `~/.cache/paginated-api` empty
 

@@ -28,6 +28,10 @@ Narrow it with `in` first: `error instanceof Error && "code" in error && error.c
 
 Both are valid JSON, but neither is a `CachedResponse`. Check it's a non-null object, then check each of the four fields and its type, as in Step 2.
 
+## How do I write a file so nobody reads it half-written?
+
+Write to a temporary file in the same folder first, then `rename` it to the final name. Renaming within a folder replaces the old file in one step. Give the temporary file a name nothing else will use: the final name, plus something unique such as `randomUUID()` from `node:crypto`, plus `.tmp`.
+
 ## The test for one file per URL finds a `.tmp` file
 
 Rename the temporary file to the final name once it's written, and await both: the `writeFile`, then the `rename`.

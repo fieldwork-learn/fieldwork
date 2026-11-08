@@ -58,6 +58,10 @@ These are the tests' cases:
 
 Done means: `npm test` shows `✔ Step 1: Fetch a page of repositories`. Then commit, push and open your first pull request, following the README.
 
+## Reading the tests
+
+`requests[0]!.init?.headers` reads `headers` only if `init` is there. If `init` is `undefined`, the whole expression is `undefined`, rather than throwing. `?.` is JavaScript's *optional chaining*. (The `!` is in [BEFORE-YOU-START.md](../../BEFORE-YOU-START.md).) See [Optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) on MDN.
+
 ## Why TypeScript does it this way
 
 Come back to this once the Step passes. It's the TypeScript you used without having to think about it.

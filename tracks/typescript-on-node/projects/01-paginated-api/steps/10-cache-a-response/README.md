@@ -57,7 +57,7 @@ It keeps each response in its own JSON file in the folder `dir`:
 
 1. **`set(url, response)` writes `response` as JSON to a file in `dir`,** replacing any earlier one for the same URL. If `dir` doesn't exist yet, it creates it, along with any missing parent folders.
 2. **Each file is named after a hash of its URL:** the SHA-256 hash of the URL, as hex, plus `.json`. A URL is full of characters a filename can't safely hold, such as `/`, `?` and `*`. A URL containing `../` could even write outside `dir`. A hash turns any URL into 64 safe characters, and the same URL always gives the same name. `createHash` from `node:crypto` makes one.
-3. **Each file is written safely.** Write to a temporary file in the same folder first, then `rename` it to the final name. Give the temporary file the final name plus something unique, such as `randomUUID()` from `node:crypto`, plus `.tmp`. Renaming within a folder replaces the old file in one step. So if the CLI is stopped halfway through writing, or two copies run at once, nobody ever reads a half-written file. When `set`'s Promise resolves, only the final `.json` file is left.
+3. **Each file is written safely.** If the CLI is stopped halfway through writing, or two copies run at once, nobody may ever read a half-written file. When `set`'s Promise resolves, only the final `.json` file is left in `dir`.
 4. **`get(url)` reads the URL's file, and resolves to its `CachedResponse`.** When there's no file, it resolves to `undefined`.
 5. **A damaged file is a miss, not a crash.** If the file isn't valid JSON, or isn't a `CachedResponse`, `get` resolves to `undefined`. A `CachedResponse` must have each of the four fields, with the right type. A cache is only ever a shortcut, so the worst a bad entry should do is make the CLI ask GitHub again. The file came from outside your program, so check its JSON the way you checked GitHub's in Step 2.
 6. **Any other error reading the file is a real problem.** Let it reject, rather than hiding it as a miss.
@@ -84,7 +84,7 @@ Done means: `npm test` shows `✔ Step 10: Cache a response on disk`.
 ## Reading the tests
 
 - Each test gets its own new folder in the operating system's temporary folder, from `mkdtemp`. It's deleted when the test ends, by `t.after(…)`. That's why the test functions take a `t`, the test's `TestContext`. Tests never touch your real files, and leave nothing behind. See [`context.after`](https://nodejs.org/api/test.html#contextafterfn-options).
-- `(await cache.get(url))?.etag` reads `etag` only if `get` gave a `CachedResponse`. If it gave `undefined`, the whole expression is `undefined`, rather than throwing. `?.` is JavaScript's optional chaining.
+- `(await cache.get(url))?.etag` reads `etag` only if `get` gave a `CachedResponse`. If it gave `undefined`, the whole expression is `undefined`. That's optional chaining, as in Step 1.
 
 ## Why TypeScript does it this way
 
@@ -94,24 +94,28 @@ Done means: `npm test` shows `✔ Step 10: Cache a response on disk`.
 const n: number = JSON.parse('"text"'); // ⚠️ compiles, and n is a string
 ```
 
-`any` agrees with every type, so it checks nothing. Put the result in an `unknown` variable instead, and TypeScript makes you check it before you use it, with the same narrowing as Step 2.
+```ts
+const value: unknown = JSON.parse('"text"'); // ✅ now TypeScript makes you check it before you use it
+```
+
+`any` agrees with every type, so it checks nothing. In an `unknown` variable, the result needs the same narrowing as Step 2 before you can use it.
 
 ### Node's errors have a `code` that TypeScript's `Error` doesn't
 
 Given a caught `error`:
 
 ```ts
-if (error instanceof Error) error.code;
-// ❌ Property 'code' does not exist on type 'Error'.
+if (error instanceof Error) error.syscall;
+// ❌ Property 'syscall' does not exist on type 'Error'.
 ```
 
 ```ts
-if (error instanceof Error && "code" in error) console.log(error.code); // ✅ error.code is unknown here
+if (error instanceof Error && "syscall" in error) console.log(error.syscall); // ✅ error.syscall is unknown here
 
-console.log((error as NodeJS.ErrnoException).code); // ⚠️ compiles, and checks nothing
+console.log((error as NodeJS.ErrnoException).syscall); // ⚠️ compiles, and checks nothing
 ```
 
-Node adds a `code`, such as `"ENOENT"`, to the errors it throws, but TypeScript's `Error` type has no `code` property. `"code" in error` narrows it to an `Error` that has one, as `in` did in Step 2. `as` would compile too, but like every `as`, it's a claim, not a check.
+Node adds properties to the errors it throws, such as `code` and `syscall`, the system call that failed. TypeScript's `Error` type has none of them. `in` narrows it to an `Error` that has one, as it did in Step 2. `as` would compile too, but like every `as`, it's a claim, not a check.
 
 ### One function, different return types
 

@@ -21,10 +21,10 @@ Import `Fetch` from `./repositories.ts`, with `import type`.
 Called with a `url` and `init`, it:
 
 1. **Passes anything but a `GET` straight to `fetch`, untouched.** A request's method is `init?.method`. When there isn't one, it's a `GET`. Only a `GET` is safe to answer from a cache. Answering a `POST` from the cache would skip the change it was meant to make.
-2. **Answers from the cache while the cached response is fresh,** without calling `fetch` at all. Fresh means `now()` is before its `expiresAt`. *Answering from the cache* means returning a new `Response` with status `200`, the cached body, and the cached `Link` header, or no `Link` header when the cached one is `null`. It must be `200`, because to callers such as `listRepositories` the request succeeded, and `response.ok` is only true for 200 to 299. `new Response(body, { status, headers })` makes one.
+2. **Answers from the cache while the cached response is fresh,** without calling `fetch` at all. Fresh means `now()` is before its `expiresAt`. *Answering from the cache* means returning a new `Response` with status `200` and the cached body. It has the cached `Link` header, or none when the cached one is `null`. It must be `200`, because to callers such as `listRepositories` the request succeeded. `response.ok` is only true for 200 to 299. `new Response(body, { status, headers })` makes one.
 3. **Asks GitHub whether a stale response has changed.** When the cached response isn't fresh, add `If-None-Match`, set to its ETag, to the request's headers. *Keep the headers already in `init`*, such as `Accept`. With nothing cached, the request goes as it is. Either way, it then calls `fetch` with the `url` and that `init`.
 4. **On `304 Not Modified`, answers from the cache,** and stores the cached response again with a new `expiresAt`, worked out from the 304's own `Cache-Control` as in 5. GitHub has just confirmed it, so it's fresh again.
-5. **On `200` with an `ETag` header, caches it, and returns it.** Store its ETag, its `Link` header (`null` if none), its body as text, and `expiresAt`. `expiresAt` is `now()` plus its `max-age` in milliseconds. The `max-age` is the whole number after `max-age=` in its `Cache-Control` header, such as `60` in `public, max-age=60, s-maxage=60`. Without one, use `0`, so the response is stale straight away and the next request asks GitHub. `s-maxage` doesn't count: it's for shared caches such as CDNs, not this one.
+5. **On `200` with an `ETag` header, caches it, and returns it.** Store its ETag, its `Link` header (`null` if none), its body as text, and `expiresAt`. `expiresAt` is `now()` plus its `max-age` in milliseconds. The `max-age` is the whole number after `max-age=` in its `Cache-Control` header, such as `60` in `public, max-age=60, s-maxage=60`. Without one, use `0`. The response is then stale straight away, and the next request asks GitHub. `s-maxage` doesn't count: it's for shared caches such as CDNs, not this one.
 6. **Returns any other response unchanged, and leaves the cache alone.** That's a failure such as `500`, or a `200` without an `ETag`, which couldn't be checked later.
 
 **A `Response`'s body can only be read once.** In 5, you need the body to store it, and the caller needs it too. See "The types don't know a body can only be read once" below.
@@ -60,13 +60,13 @@ Done means: `npm test` shows `✔ Step 11: Answer from the cache`.
 ### A union type can compile and still be mishandled
 
 ```ts
-const init: RequestInit = { headers: new Headers({ Accept: "application/vnd.github+json" }) };
+type Tags = Record<string, string> | [string, string][];
 
-const copy = { ...init.headers, "x-extra": "1" };
-// ⚠️ compiles, but copy is { "x-extra": "1" }: Accept is lost
+const copy = { ...tags, extra: "1" };
+// ⚠️ compiles. For [["colour", "red"]], copy is { "0": ["colour", "red"], extra: "1" }
 ```
 
-`init.headers` has the type `HeadersInit`, a union of three forms: a plain object, an array of `[name, value]` pairs, or a `Headers` object. Spreading only works for the plain object. A `Headers` object's entries aren't properties, so spreading it gives `{}`. An array spreads into `{ "0": …, "1": … }`. TypeScript accepts the spread because it's valid JavaScript for every member of the union, just not meaningful for all of them. A union type is a promise to handle *every* member, and the types won't always warn you when you don't. See [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers/Headers) on MDN, which accepts all three forms.
+`Tags` is a union of two forms: a plain object, or an array of `[name, value]` pairs. Spreading only does what you meant for the plain object. An array spreads into its indexes. TypeScript accepts the spread because it's valid JavaScript for every member of the union, just not meaningful for all of them. A union type is a promise to handle *every* member, and the types won't always warn you when you don't. `init.headers`, a `HeadersInit | undefined`, is a union like this, with a third form: a `Headers` object, whose entries aren't properties at all.
 
 ### The types don't know a body can only be read once
 
@@ -77,7 +77,7 @@ await response.text();
 await response.text(); // ⚠️ compiles, then fails: TypeError: Body is unusable: Body has already been read
 ```
 
-`response.text()` has the same type the second time you call it as the first. Whether a body has been read is state that changes at runtime. TypeScript's types describe what a value *is*, not what has happened to it, so some mistakes only tests catch. A body is a *stream*, read as it arrives rather than held in memory, which is why it can't be rewound. `Response` has a `clone()` method for when two readers need the same body.
+`response.text()` has the same type the second time you call it as the first. Whether a body has been read is state that changes at runtime. TypeScript's types describe what a value *is*, not what has happened to it, so some mistakes only tests catch. A body is a *stream*, read as it arrives rather than held in memory, which is why it can't be rewound.
 
 ### `?.` and `??` together
 
@@ -123,6 +123,6 @@ const notAClock: () => number = new Date();
 const clock: () => number = Date.now; // ✅
 ```
 
-`() => number` is the smallest possible interface to "the time": a function with no parameters that returns a number. `Date.now` fits it as it is, structurally. A `Date` is a moment, not a clock. Passing the clock in is how the tests can say "it's now 61 seconds later" without waiting 61 seconds.
+`() => number` is the smallest possible interface to "the time": a function with no parameters that returns a number. `Date.now` fits it as it is, structurally. A `Date` is a moment, not a clock.
 
 Stuck? See [HINTS.md](HINTS.md).

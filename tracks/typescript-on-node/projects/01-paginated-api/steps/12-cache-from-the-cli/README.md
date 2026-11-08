@@ -53,7 +53,7 @@ These are the tests' cases. The fake GitHub has octocat's two pages, each with a
 | once, with a cache | `200`, `200` | prints `Hello-World` and `dotfiles`, exits `0`, and the cache folder holds 2 files |
 | again, 59 seconds later | nothing more | prints exactly the same, exits `0` |
 | again, 61 seconds later | `304`, `304` | prints exactly the same |
-| again, 61 seconds later, after the second page changed | `304`, `200` | prints `dotfiles  ★ 7` |
+| again, 61 seconds later, after the second page changed | `304`, `200` | prints `dotfiles` with `★ 7` |
 | twice, without a cache | `200` for every page, every time | |
 
 | `cacheDirectory(…)` | Returns |
@@ -75,21 +75,24 @@ The first run fills the cache, with one file per page. Run within a minute, the 
 ## Reading the tests
 
 - `if (dir !== undefined) io.cache = diskCache(dir);` adds the cache to an `Io` after creating it, only when the test wants one. That's allowed because `cache` is optional, and `io` is a `const` *variable*. `const` stops `io` being pointed at a different object. It doesn't stop the object's properties changing. Only `readonly` (Step 6) does that.
-- `pages[url]?.()` calls the function in `pages[url]` only if there is one. Otherwise the whole expression is `undefined`. It's optional chaining (Step 10) on a call.
+- `pages[url]?.()` calls the function in `pages[url]` only if there is one. Otherwise the whole expression is `undefined`. It's optional chaining (Step 1) on a call.
 - `function fakeGitHub()` has no return type. TypeScript infers it from the `return`, so the test can use `fetch`, `answers` and `change` with their types.
 
 ## Why TypeScript does it this way
 
-### `||` and `??` replace different things
+### Choosing between `||` and `??`
 
-Given `input: string`:
+Given `flag: boolean | undefined`, meant to default to `true`:
 
 ```ts
-const a = input ?? "anonymous"; // when input is "", a is ""
-const b = input || "anonymous"; // when input is "", b is "anonymous"
+const on = flag || true; // ⚠️ compiles, but when flag is false, on is true
 ```
 
-`??` only replaces `null` and `undefined`. `||` replaces any falsy value, including `""`, `0` and `false`. Both compile, so TypeScript won't choose for you. Neither is "the right one" in general. Choose by which values you mean to replace. In Step 9, a delay of `0` had to be kept.
+```ts
+const on = flag ?? true; // ✅ when flag is false, on is false
+```
+
+Step 9 said to prefer `??`, and this is why. `??` only replaces `null` and `undefined`. `||` replaces any falsy value, including `""`, `0` and `false`. Both compile, so TypeScript won't choose for you. Sometimes replacing every falsy value is exactly what you mean, and then `||` is right. Choose by which values you mean to replace.
 
 ### `process.env` is a `Record` of maybe-strings
 
