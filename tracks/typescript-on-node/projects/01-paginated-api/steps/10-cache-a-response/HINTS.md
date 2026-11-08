@@ -4,13 +4,17 @@
 
 Create `src/cache.ts` yourself, next to `src/retry.ts`.
 
+## How do I hash a URL?
+
+`createHash("sha256").update(url).digest("hex")`, with `createHash` from `node:crypto`, gives the 64-character hex name.
+
 ## `set` fails with `ENOENT` the first time
 
 The folder doesn't exist yet. `mkdir(dir, { recursive: true })` creates it, with any missing parents, and does nothing if it's already there.
 
 ## "Property 'code' does not exist on type 'Error'"
 
-Narrow it with `in` first: `error instanceof Error && "code" in error && error.code === "ENOENT"`. See "A caught error is `unknown`" in the README.
+Narrow it with `in` first: `error instanceof Error && "code" in error && error.code === "ENOENT"`. See "Node's errors have a `code` that TypeScript's `Error` doesn't" in the README.
 
 ## "Type 'NonSharedBuffer' is not assignable to type 'string'"
 

@@ -1,40 +1,128 @@
 # Step 11: Answer from the cache
 
-Now use the cache. `withCache` wraps a `Fetch`, as `withRetry` did: it answers from the cache while a response is fresh, and asks GitHub with `If-None-Match` once it isn't. The code that reads pages, `listRepositories`, never knows the difference.
+Now use the cache. `withCache` wraps a `Fetch`, as `withRetry` did. It answers from the cache while a response is fresh, and asks GitHub with `If-None-Match` once it isn't. The code that reads pages, `listRepositories`, never knows the difference.
 
-**How do you know when a cached response is out of date?** That's the hard part of any cache, called *invalidation*. You could pick a time limit yourself, say ten minutes, but you'd be guessing: too long and a repository created a minute ago doesn't show up, too short and the cache saves nothing. HTTP's answer, which you're implementing, leaves both decisions to the server, which knows: `max-age` says how long a response may be reused without asking, and the `ETag` lets you ask cheaply after that. The cache is never staler than GitHub allows.
+**How do you know when a cached response is out of date?** That's the hard part of any cache, called *invalidation*. You could pick a time limit yourself, say ten minutes, but you'd be guessing. Too long, and a repository created a minute ago doesn't show up. Too short, and the cache saves nothing. HTTP's answer, which you're implementing, leaves both decisions to the server, which knows. `max-age` says how long a response may be reused without asking, and the `ETag` lets you ask cheaply after that. The cache is never staler than GitHub allows.
 
 ## What to build
 
-In `src/cache.ts`, export:
+In `src/cache.ts`, export a function with this signature:
 
 ```ts
 export function withCache(fetch: Fetch, cache: Cache, now: () => number): Fetch
 ```
 
-(import `Fetch` from `./repositories.ts`, with `import type`). `now` gives the time in milliseconds since 1970: the CLI will pass `Date.now`, and the tests pass a fake clock, so no test depends on the real time (the same reason `sleep` is injected). The `Fetch` it returns, called with a `url` and `init`:
+Import `Fetch` from `./repositories.ts`, with `import type`.
 
-1. **Passes anything but a `GET` straight to `fetch`, untouched.** A request's method is `init?.method`, and when there isn't one it's a `GET`. Only a `GET` is safe to answer from a cache: answering a `POST` from the cache would skip the change it was meant to make.
-2. **Looks `url` up in `cache`. If there's a cached response and it's fresh** (`now()` is before its `expiresAt`), **answers from the cache without calling `fetch` at all.** *Answering from the cache* means returning a new `Response` with status `200`, the cached body, and the cached `Link` header (no `Link` header when the cached one is `null`). It must be `200`: to callers such as `listRepositories` the request succeeded, and `response.ok` is only true for 200 to 299. `new Response(body, { status, headers })` makes one.
-3. **If there's a cached response but it's stale,** adds `If-None-Match`, set to its ETag, to the request's headers, *keeping the headers already in `init`*, such as `Accept`. With nothing cached, the request goes as it is. Either way, it then calls `fetch` with the `url` and that `init`.
-4. **On `304 Not Modified`, answers from the cache,** and stores the cached response again with a new `expiresAt`, worked out from the 304's own `Cache-Control` as in 5: GitHub has just confirmed it, so it's fresh again.
-5. **On `200` with an `ETag` header, caches it, and returns it.** Store its ETag, its `Link` header (`null` if none), its body as text, and `expiresAt`: `now()` plus its `max-age` in milliseconds. The `max-age` is the whole number after `max-age=` in its `Cache-Control` header, such as `60` in `public, max-age=60, s-maxage=60`. Without one (or with only `s-maxage`, which is for shared caches such as CDNs, not this one), use `0`: the response is stale straight away, so the next request asks GitHub.
-6. **Returns any other response unchanged, and leaves the cache alone:** a failure such as `500`, or a `200` without an `ETag`, which couldn't be checked later.
+**Why `now` is a parameter.** It gives the time, in milliseconds since 1970. The CLI will pass `Date.now`, and the tests pass a fake clock, so no test depends on the real time. It's the same reason `sleep` is injected.
 
-There's a catch in 5: **a `Response`'s body can only be read once.** If you read it with `await response.text()` to store it and then return the same response, the caller's `response.json()` fails with `TypeError: Body is unusable: Body has already been read`. Read a copy instead: `await response.clone().text()` reads the clone's body and leaves the original's for the caller. (Bodies are *streams*, read as they arrive rather than held in memory, which is why they can't be rewound.)
+### What the returned `Fetch` does
+
+Called with a `url` and `init`, it:
+
+1. **Passes anything but a `GET` straight to `fetch`, untouched.** A request's method is `init?.method`. When there isn't one, it's a `GET`. Only a `GET` is safe to answer from a cache. Answering a `POST` from the cache would skip the change it was meant to make.
+2. **Answers from the cache while the cached response is fresh,** without calling `fetch` at all. Fresh means `now()` is before its `expiresAt`. *Answering from the cache* means returning a new `Response` with status `200`, the cached body, and the cached `Link` header, or no `Link` header when the cached one is `null`. It must be `200`, because to callers such as `listRepositories` the request succeeded, and `response.ok` is only true for 200 to 299. `new Response(body, { status, headers })` makes one.
+3. **Asks GitHub whether a stale response has changed.** When the cached response isn't fresh, add `If-None-Match`, set to its ETag, to the request's headers. *Keep the headers already in `init`*, such as `Accept`. With nothing cached, the request goes as it is. Either way, it then calls `fetch` with the `url` and that `init`.
+4. **On `304 Not Modified`, answers from the cache,** and stores the cached response again with a new `expiresAt`, worked out from the 304's own `Cache-Control` as in 5. GitHub has just confirmed it, so it's fresh again.
+5. **On `200` with an `ETag` header, caches it, and returns it.** Store its ETag, its `Link` header (`null` if none), its body as text, and `expiresAt`. `expiresAt` is `now()` plus its `max-age` in milliseconds. The `max-age` is the whole number after `max-age=` in its `Cache-Control` header, such as `60` in `public, max-age=60, s-maxage=60`. Without one, use `0`, so the response is stale straight away and the next request asks GitHub. `s-maxage` doesn't count: it's for shared caches such as CDNs, not this one.
+6. **Returns any other response unchanged, and leaves the cache alone.** That's a failure such as `500`, or a `200` without an `ETag`, which couldn't be checked later.
+
+**A `Response`'s body can only be read once.** In 5, you need the body to store it, and the caller needs it too. See "The types don't know a body can only be read once" below.
+
+### Examples
+
+These are the tests' cases. "Now" is always the same moment. "Stale" is a cached response with ETag `"v1"` that went stale a second ago. Every request is a `GET` with an `Accept` header, unless a row says otherwise.
+
+| Cached | GitHub answers | The returned `Fetch` | And the cache |
+| --- | --- | --- | --- |
+| nothing | `200`, ETag `"v1"` | returns GitHub's response. It made one request, with `Accept` and no `If-None-Match` | |
+| nothing | `200`, ETag, `Link`, `max-age=60` | returns the response, with its body still readable | holds `{ etag: '"v1"', link, body, expiresAt: now + 60_000 }` |
+| nothing | `200`, ETag, no `Link`, `no-cache` | | holds `link: null`, `expiresAt: now` |
+| nothing | `503` with an ETag, or `200` without one | returns it | stays empty |
+| fresh until `now + 1` | (not asked) | returns `200` with the cached body and `Link`, without asking GitHub | |
+| stale at `now` | `304` | made one request, with `If-None-Match: "v1"` and `Accept`, whether `init`'s headers were an object or a `Headers` | |
+| stale | `304`, `max-age=60` | returns `200`, `ok`, with the cached body and `Link` | the same entry, with `expiresAt: now + 60_000` |
+| stale, `link: null` | `304` | returns a response with no `Link` header | |
+| stale | `200`, a new body, ETag `"v2"`, `max-age=60` | returns GitHub's new response | holds `{ etag: '"v2"', link: null, body: newer, expiresAt: now + 60_000 }` |
+| stale | `500` | returns the `500` | unchanged |
+| nothing | `200` with `Cache-Control` of `max-age=30` / `private, max-age=5` / `s-maxage=60` / `max-age=soon` | | `expiresAt` is `now` plus `30_000` / `5000` / `0` / `0` |
+| fresh | `201`, for a `POST` | returns the `201`. The `POST` went to GitHub, with no `If-None-Match` | unchanged |
 
 Done means: `npm test` shows `✔ Step 11: Answer from the cache`.
 
 ## Reading the tests
 
-Every test uses the same fixed moment as "now", `1_790_000_000_000` milliseconds after 1970 (in 2026), and cached responses with `expiresAt` set just before or after it. `memoryCache` is a `Cache` that keeps entries in an object instead of on disk. It has everything `Cache` needs, so `withCache` accepts it: the interface from Step 10 at work. Its type, `Cache & { entries: … }`, is an intersection (Step 9): a `Cache` that also lets the test look at `entries`.
+- `memoryCache` is a `Cache` that keeps entries in an object instead of on disk. It has everything `Cache` needs, so `withCache` accepts it. That's the interface from Step 10 at work. Its type, `Cache & { entries: … }`, is an intersection, as in Step 5: a `Cache` that also lets the test look at `entries`.
+- `fakeFetch(() => assert.fail("GitHub shouldn't be asked"))` passes a function that should return a `Response`, but only ever throws. `assert.fail`'s return type is `never`, the type of something that never happens. `never` fits every type, so this compiles. See [`never`](https://www.typescriptlang.org/docs/handbook/2/functions.html#never).
 
 ## Why TypeScript does it this way
 
-- **Spreading headers compiles, and can lose them.** `{ ...init?.headers, "if-none-match": etag }` type-checks, but it's a bug waiting to happen. `init.headers` has the type `HeadersInit`: a union of a plain object, an array of `[name, value]` pairs, or a `Headers` object. Spreading only works for the plain object: spreading a `Headers` object gives `{}`, because its entries aren't properties, and an array spreads into `{ "0": …, "1": … }`. TypeScript accepts the spread because it's valid JavaScript for every member of the union, just not meaningful for all of them. `new Headers(init?.headers)` accepts all three forms (and `undefined`), and `.set(name, value)` adds to it. A union type is a promise to handle *every* member, and the types won't always warn you when you don't.
-- **The types don't know a body can only be read once.** `response.text()` has the same type the second time you call it as the first. Whether a body has been read is state that changes at runtime, and TypeScript's types describe what a value *is*, not what has happened to it. Some mistakes only tests catch.
-- **`??` for a default, again.** `init?.method ?? "GET"` gives `"GET"` when there's no `init` or no `method`: the optional chaining `?.` stops at a missing `init`, and `??` fills in. Compare it upper-cased, `.toUpperCase()`, since `fetch` accepts `"get"` too.
-- **`undefined` has to be ruled out before every use.** After `const cached = await cache.get(url)`, `cached` is `CachedResponse | undefined`, and TypeScript won't let you read `cached.etag` until you've checked. `if (cached !== undefined && now() < cached.expiresAt)` narrows it for the right-hand side of the `&&` and the body of the `if`, as you've done since Step 3.
-- **A function type for the clock.** `now: () => number` is the smallest possible interface to "the time": a function with no parameters that returns a number. `Date.now` fits it as it is, structurally. Passing time in like this is how the tests can say "it's now 61 seconds later" without waiting 61 seconds.
+### A union type can compile and still be mishandled
+
+```ts
+const init: RequestInit = { headers: new Headers({ Accept: "application/vnd.github+json" }) };
+
+const copy = { ...init.headers, "x-extra": "1" };
+// ⚠️ compiles, but copy is { "x-extra": "1" }: Accept is lost
+```
+
+`init.headers` has the type `HeadersInit`, a union of three forms: a plain object, an array of `[name, value]` pairs, or a `Headers` object. Spreading only works for the plain object. A `Headers` object's entries aren't properties, so spreading it gives `{}`. An array spreads into `{ "0": …, "1": … }`. TypeScript accepts the spread because it's valid JavaScript for every member of the union, just not meaningful for all of them. A union type is a promise to handle *every* member, and the types won't always warn you when you don't. See [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers/Headers) on MDN, which accepts all three forms.
+
+### The types don't know a body can only be read once
+
+Given `response: Response`:
+
+```ts
+await response.text();
+await response.text(); // ⚠️ compiles, then fails: TypeError: Body is unusable: Body has already been read
+```
+
+`response.text()` has the same type the second time you call it as the first. Whether a body has been read is state that changes at runtime. TypeScript's types describe what a value *is*, not what has happened to it, so some mistakes only tests catch. A body is a *stream*, read as it arrives rather than held in memory, which is why it can't be rewound. `Response` has a `clone()` method for when two readers need the same body.
+
+### `?.` and `??` together
+
+```ts
+function greet(options?: { name?: string }) {
+  return options.name;
+  // ❌ 'options' is possibly 'undefined'.
+}
+```
+
+```ts
+function greet(options?: { name?: string }) {
+  return options?.name ?? "stranger"; // ✅
+}
+```
+
+`?.` stops at a missing `options`, and gives `undefined` rather than throwing. `??` then fills in a default, whether `options` or its `name` was missing.
+
+### `&&` narrows its right-hand side
+
+Given `user: { age: number } | undefined`:
+
+```ts
+const adult = user.age >= 18;
+// ❌ 'user' is possibly 'undefined'.
+```
+
+```ts
+const adult = user !== undefined && user.age >= 18; // ✅
+```
+
+The right-hand side of `&&` only runs when the left is true, so TypeScript narrows `user` there. The same goes for the body of an `if` with that condition, as you've done since Step 3.
+
+### A function type for the clock
+
+```ts
+const notAClock: () => number = new Date();
+// ❌ Type 'Date' is not assignable to type '() => number'.
+//      Type 'Date' provides no match for the signature '(): number'.
+```
+
+```ts
+const clock: () => number = Date.now; // ✅
+```
+
+`() => number` is the smallest possible interface to "the time": a function with no parameters that returns a number. `Date.now` fits it as it is, structurally. A `Date` is a moment, not a clock. Passing the clock in is how the tests can say "it's now 61 seconds later" without waiting 61 seconds.
 
 Stuck? See [HINTS.md](HINTS.md).
