@@ -63,8 +63,7 @@ It behaves just as before, because GitHub rarely fails. Retries are for the day 
 
 ## Reading the tests
 
-- `Record<string, () => Response>` is a lookup table, as in Step 7, with any `string` as a key and a function returning a `Response` as each value. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
-- `Writer & { text: () => string }` is an *intersection*: a value that is a `Writer` and also has a `text` method. Where `|` means "either", `&` means "both". The fake streams have the one method `main` needs, plus one the test reads the output with. See [Intersection types](https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types).
+- `Record<string, () => Response>` is a lookup table, as in Step 4, and `Writer & { text: () => string }` is an intersection, as in Step 5.
 - The last test builds an `Io` without `sleep`. It always passes when it runs. What it really checks is that it compiles, so that `sleep` really is optional.
 
 ## Why TypeScript does it this way

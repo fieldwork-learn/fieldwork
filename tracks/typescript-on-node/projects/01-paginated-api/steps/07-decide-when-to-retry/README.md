@@ -53,7 +53,7 @@ Done means: `npm test` shows `✔ Step 7: Decide when to retry`. The tests are s
 
 ## Reading the tests
 
-`answered(503, { "retry-after": "1" })` builds a response `Attempt` with that status and those headers. Its `headers` parameter is a `Record<string, string>`: an object used as a lookup table, with any `string` as a key and a `string` as each value. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
+`answered(503, { "retry-after": "1" })` builds a response `Attempt` with that status and those headers. Its `headers` parameter is a `Record<string, string>`, a lookup table as in Step 4, with a `string` as each value.
 
 ## Why TypeScript does it this way
 

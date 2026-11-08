@@ -1,6 +1,6 @@
 {
   "name": "paginated-api",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "track": "typescript-on-node",
   "summary": "A CLI that lists every public repository of a GitHub user or organisation, reading the GitHub API page by page, retrying with backoff when it fails, and caching on disk.",
   "assumes": [
