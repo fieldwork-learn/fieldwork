@@ -4,13 +4,17 @@
 
 Create `src/cache.ts` yourself, next to `src/retry.ts`.
 
+## How do I hash a URL?
+
+`createHash("sha256").update(url).digest("hex")`, with `createHash` from `node:crypto`, gives the 64-character hex name.
+
 ## `set` fails with `ENOENT` the first time
 
 The folder doesn't exist yet. `mkdir(dir, { recursive: true })` creates it, with any missing parents, and does nothing if it's already there.
 
 ## "Property 'code' does not exist on type 'Error'"
 
-Narrow it with `in` first: `error instanceof Error && "code" in error && error.code === "ENOENT"`. See "A caught error is `unknown`" in the README.
+Narrow it with `in` first: `error instanceof Error && "code" in error && error.code === "ENOENT"`. See "Node's errors have a `code` that TypeScript's `Error` doesn't" in the README.
 
 ## "Type 'NonSharedBuffer' is not assignable to type 'string'"
 
@@ -23,6 +27,10 @@ Narrow it with `in` first: `error instanceof Error && "code" in error && error.c
 ## The damaged-file test fails for `null` or `[]`
 
 Both are valid JSON, but neither is a `CachedResponse`. Check it's a non-null object, then check each of the four fields and its type, as in Step 2.
+
+## How do I write a file so nobody reads it half-written?
+
+Write to a temporary file in the same folder first, then `rename` it to the final name. Renaming within a folder replaces the old file in one step. Give the temporary file a name nothing else will use: the final name, plus something unique such as `randomUUID()` from `node:crypto`, plus `.tmp`.
 
 ## The test for one file per URL finds a `.tmp` file
 

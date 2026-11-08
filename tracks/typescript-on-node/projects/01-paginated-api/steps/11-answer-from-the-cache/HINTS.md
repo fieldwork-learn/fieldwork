@@ -2,11 +2,15 @@
 
 ## "Body is unusable: Body has already been read"
 
-You read the response's body and then returned the response. Read a clone: `await response.clone().text()`. See the catch in "What to build".
+You read the response's body and then returned the response. Read a clone: `await response.clone().text()`. See "The types don't know a body can only be read once" in the README.
 
 ## The test that keeps the request's own headers fails on `accept`
 
-Your new headers replaced `init`'s instead of adding to them. Start from `new Headers(init?.headers)`, `.set("if-none-match", …)` on it, and pass `{ ...init, headers }` to `fetch`. See "Spreading headers compiles, and can lose them" in the README.
+Your new headers replaced `init`'s instead of adding to them. Start from `new Headers(init?.headers)`, `.set("if-none-match", …)` on it, and pass `{ ...init, headers }` to `fetch`. `new Headers(…)` accepts every form `init.headers` can take, and `undefined`. See "A union type can compile and still be mishandled" in the README.
+
+## Which method is it?
+
+`init?.method ?? "GET"` gives `"GET"` when there's no `init` or no `method`. Compare it upper-cased, `.toUpperCase()`, since `fetch` accepts `"get"` too.
 
 ## The fresh-response test fails with "GitHub shouldn't be asked"
 
