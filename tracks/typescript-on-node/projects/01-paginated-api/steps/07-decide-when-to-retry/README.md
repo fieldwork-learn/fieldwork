@@ -51,6 +51,10 @@ The rules' order matters. Rule 1 comes first: with no tries left, the answer is 
 
 Done means: `npm test` shows `✔ Step 7: Decide when to retry`. The tests are short, one rule each, so reading them is a good way to check your understanding of a rule.
 
+## Reading the tests
+
+`answered(503, { "retry-after": "1" })` builds a response `Attempt` with that status and those headers. Its `headers` parameter is a `Record<string, string>`: an object used as a lookup table, with any `string` as a key and a `string` as each value. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
+
 ## Why TypeScript does it this way
 
 As in Step 6, the examples use a `Shape` type, so they don't give away your answer:
@@ -77,7 +81,7 @@ function area(shape: Shape): number {
 }
 ```
 
-After `if (shape.kind === "square") return …`, TypeScript knows the rest of the function only sees circles. So `shape.radius` type-checks with no further check. The order of your `if`s is information TypeScript uses. In `decide`, once you've returned for an error `Attempt`, the code after it can use `attempt.response`. See [Discriminated unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
+After `if (shape.kind === "square") return …`, TypeScript knows the rest of the function only sees circles. So `shape.radius` type-checks with no further check. The order of your `if`s is information TypeScript uses. See [Discriminated unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 
 ### A return type catches mistakes where you make them
 
@@ -92,16 +96,19 @@ function stop(): Decision {
 function stop() {
   return { kind: "stopp" };      // compiles: TypeScript infers { kind: string }
 }
-const decision: Decision = stop(); // ❌ the error turns up here instead, far from the typo
+const decision: Decision = stop();
+// ❌ Type '{ kind: string; }' is not assignable to type 'Decision'.
 ```
+
+Without a return type, the error turns up where the result is used, far from the typo, and says nothing about `"stopp"`.
 
 Because `decide` is declared to return `Decision`, each `return { … }` is checked against `Decision` right there. As Step 6 showed, writing an object straight into a typed place also stops `"stop"` widening to `string`. Without the return type, TypeScript infers one from what you return, and a typo is only caught wherever the result is used, if at all. A return type tells TypeScript what you meant, so it can check what you did.
 
 ### `any` hides in `Number`
 
 ```ts
-Number(null); // compiles, and is 0
-Number(response.headers.get("retry-after")); // compiles, and is 0 when the header is missing
+Number(null);                               // ⚠️ compiles, and is 0
+Number(response.headers.get("retry-after")); // ⚠️ compiles, and is 0 when the header is missing
 ```
 
 Neither line is an error, and that's the problem. `Number` is declared to take `any`, so TypeScript lets you pass it `string | null`. Without a `Retry-After` header, a retry would quietly wait `0`. Check for `null`, and for digits, before converting. Hover over `Number` in your editor to see its declared type. As in Step 4, `any` from a library's types switches off exactly the checking you'd want.
@@ -120,6 +127,6 @@ weekend.includes(day); // ✅
 weekend.push(1);       // ❌ Property 'push' does not exist on type 'readonly number[]'.
 ```
 
-`as const` gives the array the type of exactly those numbers. `includes` only accepts the array's own element type, and `day` is any `number`, not `0` or `6`. Type the array as `readonly number[]` instead: `number[]` so it can be searched for any number, and `readonly` so nothing can change it. The same goes for a list of statuses.
+`as const` gives the array the type of exactly those numbers. `includes` only accepts the array's own element type, and `day` is any `number`, not `0` or `6`. Type the array as `readonly number[]` instead: `number[]` so it can be searched for any number, and `readonly` so nothing can change it.
 
 Stuck? See [HINTS.md](HINTS.md).

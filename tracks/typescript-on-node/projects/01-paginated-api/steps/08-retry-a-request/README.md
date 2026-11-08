@@ -78,7 +78,7 @@ const triple = (n) => n * 3;
 const double: (n: number) => number = (n) => n * 2; // ✅ n is a number
 ```
 
-On its own, an arrow function's parameters need types. But where TypeScript already knows what function type is expected, it takes the parameters' types from that. That's *contextual typing*. Because `withRetry` is declared to return `Fetch`, you can write `return async (url, init) => { … }` with no types on `url` and `init`. It's the same thing that typed the parameters of the fakes in every test file so far. Hover over `url` to see it. See [Contextual typing](https://www.typescriptlang.org/docs/handbook/type-inference.html#contextual-typing).
+On its own, an arrow function's parameters need types. But where TypeScript already knows what function type is expected, it takes the parameters' types from that. That's *contextual typing*. It's what typed the parameters of the fakes in every test file so far, such as `async (url, init) => …` in this Step's. Hover over a parameter to see the type it was given. See [Contextual typing](https://www.typescriptlang.org/docs/handbook/type-inference.html#contextual-typing).
 
 ### TypeScript checks that every path returns
 
@@ -99,7 +99,7 @@ const firstFree: (taken: Set<number>) => number = (taken) => {
 }; // ✅
 ```
 
-In `firstEven`, the loop can end without returning, so the function might return `undefined`. TypeScript reports the whole function as not matching its type, not the line that's missing. A loop with no condition, such as `for (let n = 1; ; n++)`, only ends by `return` or `throw`, so every path returns. The same goes for `withRetry`: a loop with a condition, such as `attemptNumber <= policy.maxAttempts`, can end. TypeScript can't know that `decide` always stops by then.
+In `firstEven`, the loop can end without returning, so the function might return `undefined`. TypeScript reports the whole function as not matching its type, not the line that's missing. A loop with no condition, such as `for (let n = 1; ; n++)`, only ends by `return` or `throw`, so every path returns. TypeScript checks the code's shape, not what you know about the data: it can't tell that `firstEven` is only ever given an array with an even number in it.
 
 ### A variable can be declared before it's given a value
 
@@ -111,16 +111,16 @@ console.log(message);
 ```
 
 ```ts
-let parsed: unknown;
-try {
-  parsed = JSON.parse(text);
-} catch (error) {
-  parsed = error;
+let message: string;
+if (ok) {
+  message = "yes";
+} else {
+  message = "no";
 }
-console.log(parsed); // ✅ both paths assigned it
+console.log(message); // ✅ both paths assigned it
 ```
 
-TypeScript follows every path through the code. It lets you use the variable once each path has assigned it. If `ok` is false, `message` never gets a value. In the second example, the `try` and the `catch` both assign `parsed`. See [Control flow analysis](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#control-flow-analysis).
+TypeScript follows every path through the code. It lets you use the variable once each path has assigned it. In the first example, if `ok` is false, `message` never gets a value. See [Control flow analysis](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#control-flow-analysis).
 
 ### A caught error is `unknown`
 
@@ -133,14 +133,15 @@ try {
 }
 ```
 
-In `catch (error)`, `error` is `unknown` (Step 5), because anything can be thrown. That fits an error `Attempt`'s `error` exactly. You can't use it as an `Error` without narrowing, but you can throw it again as it is.
+In `catch (error)`, `error` is `unknown` (Step 5), because anything can be thrown. You can't use it as an `Error` without narrowing, but you can throw it again as it is.
 
 ### `Promise<void>` means "don't use the result"
 
 ```ts
-const pause: Sleep = async (ms) => {};       // ✅
 const pauseAnswer: Sleep = async () => 42;
 // ❌ Type 'Promise<number>' is not assignable to type 'Promise<void>'.
+
+const pause: Sleep = async (ms) => {}; // ✅
 
 const n: number = await pause(1);
 // ❌ Type 'void' is not assignable to type 'number'.

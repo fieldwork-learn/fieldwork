@@ -107,7 +107,7 @@ npm test -- --watch         # rerun on save
 
 #### Writing a Step's README
 
-Learners shouldn't have to parse TypeScript and English at the same time. So specify by example, and explain with code. Steps 6 to 9 of paginated-api are examples.
+Learners shouldn't have to parse TypeScript and English at the same time. So specify by example, and explain with code.
 
 **"What to build": specify by example.**
 
@@ -121,7 +121,8 @@ Learners shouldn't have to parse TypeScript and English at the same time. So spe
 **"Why TypeScript does it this way": explain with code.**
 
 - **One behaviour per subsection,** each with a short heading.
-- **Code first.** Show the failing case marked ❌ with the actual compiler error, then the working case marked ✅, then a one-to-three-sentence explanation.
+- **Code first.** Show the failing case marked ❌ with the actual compiler error, then the working case marked ✅, then a one-to-three-sentence explanation. Where the point is that a mistake compiles, such as `Number(null)`, mark it ⚠️ instead of ❌. Where the ✅ would be the Step's answer, leave it out and say so.
+- **Teach the concept, not the Step.** Don't end a subsection by saying how it applies to the Learner's code ("so in `withRetry`, write …"). That's a partial solution, so it goes in `HINTS.md`, which can point back at the subsection.
 - **Separate interacting behaviours.** Where two behaviours interact, such as widening and excess property checks, show each alone before the interaction.
 - **Don't let an error message give the answer away.** An error on the Learner's own type prints its definition. Where it would, use a neutral type instead, such as Step 6's `Shape`.
 - **Keep the doc links.**

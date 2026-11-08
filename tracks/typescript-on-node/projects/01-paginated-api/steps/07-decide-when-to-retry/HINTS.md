@@ -18,7 +18,7 @@ A regular expression anchored at both ends: `/^\d+$/.test(value)`. `^` and `$` m
 
 ## "Argument of type 'number' is not assignable to parameter of type '429 | 500 | …'"
 
-You've written the statuses with `as const`. See "`as const` makes an array too precise for `includes`" in the README.
+You've written the statuses with `as const`. Type the list as `readonly number[]` instead. See "`as const` makes an array too precise for `includes`" in the README.
 
 ## The attempts-used-up test fails for a status I don't retry anyway
 

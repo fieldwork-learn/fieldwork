@@ -21,7 +21,7 @@ It's optional because the code at the bottom of `cli.ts` that runs `main` for re
 
 ### 2. Retry every request with `withRetry`
 
-In `main`, wrap `io.fetch` with `withRetry`, and pass the result to `listRepositories` instead of `io.fetch`. Use this policy:
+Make every request `main` sends retry, with `withRetry` and this policy:
 
 ```ts
 { maxAttempts: 3, baseDelayMs: 1000, maxDelayMs: 10_000 }
@@ -29,7 +29,7 @@ In `main`, wrap `io.fetch` with `withRetry`, and pass the result to `listReposit
 
 That's three tries at each page, waiting 1 second and then 2. It rides out a blip without leaving someone staring at a silent terminal for long.
 
-The retrying `Fetch` goes *into* `listRepositories`, so each request gets its own tries. A page that fails twice and then works costs two waits, and the next page starts again from its first try. Nothing else about `main` changes. A status that `decide` won't retry, or one that still fails after three tries, reaches `listRepositories`, which throws as before. `main` prints the message and returns `1`.
+Each request gets its own tries. A page that fails twice and then works costs two waits, and the next page starts again from its first try. A page that worked is never fetched again. Nothing else about `main` changes. A status that `decide` won't retry, or one that still fails after three tries, reaches `listRepositories`, which throws as before. `main` prints the message and returns `1`.
 
 ### 3. Wait with `io.sleep`, or for real
 
@@ -63,7 +63,7 @@ It behaves just as before, because GitHub rarely fails. Retries are for the day 
 
 ## Reading the tests
 
-- `Record<string, () => Response>` is the type of an object used as a lookup table. It takes any `string` as a key, with a function returning a `Response` as each value. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
+- `Record<string, () => Response>` is a lookup table, as in Step 7, with any `string` as a key and a function returning a `Response` as each value. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
 - `Writer & { text: () => string }` is an *intersection*: a value that is a `Writer` and also has a `text` method. Where `|` means "either", `&` means "both". The fake streams have the one method `main` needs, plus one the test reads the output with. See [Intersection types](https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types).
 - The last test builds an `Io` without `sleep`. It always passes when it runs. What it really checks is that it compiles, so that `sleep` really is optional.
 
@@ -81,21 +81,21 @@ options.log("hi");
 ```
 
 ```ts
-(options.log ?? console.log)("hi"); // ✅ console.log when there's no log
+if (options.log) options.log("hi"); // ✅ only called when it's there
 ```
 
-With `log?:`, the type of `options.log` is `((text: string) => void) | undefined`. TypeScript won't let you call it until you've dealt with the `undefined`. `??` does that: it gives its right-hand side when the left is `null` or `undefined`. See [Optional properties](https://www.typescriptlang.org/docs/handbook/2/objects.html#optional-properties).
+With `log?:`, the type of `options.log` is `((text: string) => void) | undefined`. TypeScript won't let you call it until you've dealt with the `undefined`, for example by checking for it first, which narrows it. See [Optional properties](https://www.typescriptlang.org/docs/handbook/2/objects.html#optional-properties).
 
 ### Prefer `??` to `||`
 
 ```ts
 function wait(ms?: number) {
-  const a = ms || 1000; // wait(0) gives 1000
-  const b = ms ?? 1000; // wait(0) gives 0
+  const a = ms || 1000; // ⚠️ compiles, but wait(0) gives 1000
+  const b = ms ?? 1000; // ✅ wait(0) gives 0
 }
 ```
 
-`||` replaces every falsy value, including `0`, `""` and `false`, not only `null` and `undefined`. For a function that's harmless. For a number, such as a delay of `0`, it's a classic bug. Both lines compile, so TypeScript won't catch this one for you.
+`??` gives its right-hand side when the left is `null` or `undefined`. `||` replaces every falsy value, including `0`, `""` and `false`, not only `null` and `undefined`. For a function that's harmless. For a number, such as a delay of `0`, it's a classic bug. Both lines compile, so TypeScript won't catch this one for you.
 
 ### Adding an optional property breaks nobody
 
@@ -120,12 +120,6 @@ const sleep: Sleep = setTimeout;
 //      Types of parameters 'handler' and 'ms' are incompatible.
 ```
 
-```ts
-import { setTimeout as delay } from "node:timers/promises";
-
-const sleep: Sleep = delay; // ✅
-```
-
-`delay` takes a number of milliseconds and returns a Promise, so it's a `Sleep` as it is. That's structural typing again (Step 1). The global `setTimeout` takes a callback first, and TypeScript says so. The types catch a mix-up that would otherwise fail at runtime.
+The ✅ is your answer to this Step, so it isn't shown here. `setTimeout` from `node:timers/promises` takes a number of milliseconds and returns a Promise, so it's a `Sleep` as it is. That's structural typing again (Step 1). The global `setTimeout` takes a callback first, and TypeScript says so. The types catch a mix-up that would otherwise fail at runtime.
 
 Stuck? See [HINTS.md](HINTS.md).

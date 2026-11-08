@@ -17,7 +17,9 @@ This Step is **type-only**. You write no code that runs, just types, and TypeScr
 
 **Create `src/retry.ts`.** Everything you write in Steps 6 to 8 goes in it. Your repository doesn't have it yet, because Steps 6 to 12 were added in a later version of this Project. You may have got them as a *Project Update*: a pull request that brings a newer version of the Project's instructions, tests and Hints into your repository. A Project Update never touches `src/`, because that's your code. So it can't create the file for you.
 
-**Optional: a faster workflow.** You've done the Git workflow by hand for five Steps. From here on, you could try the faster version with `gh`, in the "Workflow: faster, with gh" section of this repository's README. You could also put more than one Step in a pull request. Steps 6 and 7 make a good pair, and so do Steps 8 and 9.
+## Optional: a faster workflow
+
+You've done the Git workflow by hand for five Steps. From here on, you could try the faster version with `gh`, in the "Workflow: faster, with gh" section of this repository's README. You could also put more than one Step in a pull request. Steps 6 and 7 make a good pair, and so do Steps 8 and 9.
 
 ## How a type-only Step is checked
 
@@ -252,10 +254,11 @@ settings.tags.push("fast"); // ✅ the array itself can still change
 ### A union needs `type`, not `interface`
 
 ```ts
-type Shape = { kind: "circle"; radius: number } | { kind: "square"; side: number }; // ✅
+interface Shape { kind: "circle"; radius: number } | { kind: "square"; side: number }
+// ❌ Expression expected.
 ```
 
-An `interface` describes one object shape, and its syntax has no place for `|`. So a union must be a `type` alias. An object type such as `RetryPolicy` can be either. See [Differences between type aliases and interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces).
+The `type Shape` at the top of this section is the ✅. An `interface` describes one object shape, and its syntax has no place for `|`, so TypeScript can't even parse this. A union must be a `type` alias. An object type such as `RetryPolicy` can be either. See [Differences between type aliases and interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces).
 
 ### Testing a type
 
