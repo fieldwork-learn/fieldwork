@@ -72,7 +72,7 @@ export function greet(name: string): string {
 
 Each `steps/<step-id>/` holds:
 
-- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. In the TypeScript-on-Node Track, follow that with a **"Why TypeScript does it this way"** section: the TypeScript the Step used and why the language works that way, such as structural typing, `unknown` versus `any`, or types being erased at runtime. Learners come from JavaScript, so this is what they should take away from each Step, beyond making the tests pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)).
+- **`README.md`, the instructions.** Start with `# Step <N>: <title>`, where N is the number the Learner sees. Open with the real-world problem the Step solves, the way a teammate would describe it, before saying what to build. Then say exactly what makes the Step pass. In the TypeScript-on-Node Track, follow that with a **"Why TypeScript does it this way"** section: the TypeScript the Step used and why the language works that way, such as structural typing, `unknown` versus `any`, or types being erased at runtime. Learners come from JavaScript, so this is what they should take away from each Step, beyond making the tests pass. End with a link to `HINTS.md`, followed by any credit for borrowed material (see [Borrowing](#borrowing-a-problem-from-an-mit-source)). Follow [Writing a Step's README](#writing-a-steps-readme).
 - **`HINTS.md`, the Hints.** Each Hint unblocks a Learner without giving the answer: point at the concept, the API or the docs page, or explain what a failure message means. Write Hints for the places Learners really get stuck, headed by the symptom ("`fetch` returns a Promise, not the data").
 - **`*.test.ts`, the tests.** They define the Step.
 
@@ -104,6 +104,40 @@ npm test                    # Steps in order, stopping at the first that fails
 npm test -- --step 2        # one Step only
 npm test -- --watch         # rerun on save
 ```
+
+#### Writing a Step's README
+
+Learners shouldn't have to parse TypeScript and English at the same time. So specify by example, and explain with code.
+
+**"What to build": specify by example.**
+
+- **Never show the solution.** No type definitions and no function bodies. `HINTS.md` is the only place for partial solutions. A signature or type the tests depend on, but that the Step isn't about writing, may be given, such as `decide`'s signature or the `Sleep` type.
+- **For a type-level Step,** show values the type must accept (✅) and must reject (❌), each with a short comment saying why. Include a narrowing example where the Step relies on narrowing.
+- **For a runtime Step,** show the expected behaviour as input → output examples, or a table.
+- **Mirror the tests.** Each ❌ example must match a check in the Step's tests, so the README previews them. Don't add an example for something no test checks.
+- **Keep the why, where the Learner meets it.** Give each item one or two sentences on *why* it's built that way, and point out TypeScript's idiosyncrasies as they come up, especially where TypeScript behaves differently from what a JavaScript developer expects.
+- **Prose is for what the examples can't say,** such as "Write `Attempt` as a union of two object types."
+
+**"Why TypeScript does it this way": explain with code.**
+
+- **One behaviour per subsection,** each with a short heading.
+- **Code first.** Show the failing case marked ❌ with the actual compiler error, then the working case marked ✅, then a one-to-three-sentence explanation. Where the point is that a mistake compiles, such as `Number(null)`, mark it ⚠️ instead of ❌. Where the ✅ would be the Step's answer, leave it out and say so.
+- **Teach the concept, not the Step.** Don't end a subsection by saying how it applies to the Learner's code ("so in `withRetry`, write …"). That's a partial solution, so it goes in `HINTS.md`, which can point back at the subsection.
+- **Separate interacting behaviours.** Where two behaviours interact, such as widening and excess property checks, show each alone before the interaction.
+- **Don't let an error message give the answer away.** An error on the Learner's own type prints its definition. Where it would, use a neutral type instead, such as Step 6's `Shape`.
+- **Keep the doc links.**
+
+**Accuracy.** Verify every ✅ and ❌ example against the Project's `tsconfig.json` and the Step's Reference Solution. Copy `solutions/<step-id>/src`, the Project's `package.json` and `tsconfig.json` into a scratch folder outside the repository, put the examples in a file there, and run `tsc --noEmit -p` on it. ✅ lines must compile, and ❌ lines must fail *for the stated reason*, with the error the README quotes. Don't commit the scratch files.
+
+**Prose.**
+
+- **Short sentences,** and no chains of colons.
+- **Define Project vocabulary at first use,** such as "Project Update".
+- **Required setup first.** Keep optional workflow tips separate from it.
+- **End "What to build" with a "Done means" line** that says unambiguously what passing looks like, so a Learner doesn't have to read the tests to know.
+- **Teach it or list it.** Syntax in a Step's starter code or tests is either explained in the Step or listed in the Track's before-you-start guide.
+
+Step 0 has no TypeScript, so only the prose rules apply to it.
 
 ### 5. Write the Reference Solutions
 
