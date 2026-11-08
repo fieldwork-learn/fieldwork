@@ -58,21 +58,29 @@ function find(): string | undefined {
 }
 ```
 
-TypeScript checks every `return` against the return type, in this function. So a mistake is a compile error here, not a surprise in whoever calls it. One thing it doesn't check: with this Project's tsconfig, a function whose return type includes `undefined` may end without a `return` at all, and it returns `undefined`. Be explicit anyway, so a reader can see you meant it.
+TypeScript checks every `return` against the return type, in this function. So a mistake is a compile error here, not a surprise in whoever calls it.
+
+```ts
+function find(found: boolean): string | undefined {
+  if (found) return "https://example.com";
+} // ⚠️ compiles, and returns undefined when found is false
+```
+
+One thing it doesn't check. With this Project's tsconfig, a function whose return type includes `undefined` may fall off the end once some other path has returned. It returns `undefined` there. Return `undefined` explicitly anyway, so a reader can see you meant it.
 
 ### `null` and `undefined` are different types
 
 ```ts
-const next: string | undefined = null;
-// ❌ Type 'null' is not assignable to type 'string | undefined'.
+const link: string = new Headers().get("link");
+// ❌ Type 'string | null' is not assignable to type 'string'.
+//      Type 'null' is not assignable to type 'string'.
 ```
 
 ```ts
-const next: string | undefined = undefined; // ✅
 const link: string | null = new Headers().get("link"); // ✅ Headers.get says null
 ```
 
-JavaScript has two "nothing" values, and TypeScript keeps them apart. Web APIs such as `Headers.get` and `RegExp.prototype.exec` use `null`. TypeScript code tends to use `undefined`, because it's what optional parameters and properties (`init?: RequestInit`) and a missing array element give you.
+JavaScript has two "nothing" values, and TypeScript keeps them apart. Web APIs such as `Headers.get` use `null`. TypeScript code tends to use `undefined`, because it's what optional parameters and properties (`init?: RequestInit`) and a missing array element give you.
 
 ### Indexing can miss
 
@@ -88,6 +96,6 @@ const first = names[0];
 if (first !== undefined) first.toUpperCase(); // ✅
 ```
 
-This Project's tsconfig turns on `noUncheckedIndexedAccess`, so `names[0]` is `string | undefined`, not `string`. The array might be empty. The same goes for a regular expression's capture group, such as `match[1]`. TypeScript's default is to assume every index exists, which is convenient and sometimes wrong. With this setting on, it makes you say what happens when it doesn't.
+This Project's tsconfig turns on `noUncheckedIndexedAccess`, so `names[0]` is `string | undefined`, not `string`. The array might be empty. TypeScript's default is to assume every index exists, which is convenient and sometimes wrong. With this setting on, it makes you say what happens when it doesn't.
 
 Stuck? See [HINTS.md](HINTS.md).

@@ -78,7 +78,7 @@ const loose: any = JSON.parse(text);
 loose.nmae.toUpperCase(); // ⚠️ compiles, typo and all
 ```
 
-You can assign anything to `unknown`, but you can't use it until you've narrowed it. `any` lets you do anything with it, and checks nothing. Use `unknown` for values you haven't checked yet. Treat an `any` from a library, like the one `response.json()` returns, as `unknown` too.
+You can assign anything to `unknown`, but you can't use it until you've narrowed it. `any` lets you do anything with it, and checks nothing. Use `unknown` for values you haven't checked yet.
 
 ### Narrowing is TypeScript following your `if`s
 

@@ -74,20 +74,17 @@ Inside the function, `yield` only accepts the type in the signature. Outside, a 
 ### A variable's type comes from its first value
 
 ```ts
-let next = "https://example.com";
-next = undefined;
+let status = "loading";
+status = undefined;
 // ❌ Type 'undefined' is not assignable to type 'string'.
 ```
 
 ```ts
-let next: string | undefined = "https://example.com"; // ✅
-while (next !== undefined) {
-  next.toUpperCase(); // ✅ narrowed back to string inside the loop
-  next = undefined;
-}
+let status: string | undefined = "loading";
+status = undefined; // ✅
 ```
 
-With no type written, TypeScript gives a variable the type of its first value. When a variable will hold more than that, give it its type yourself. A check such as `while (next !== undefined)` then narrows it back inside the loop.
+With no type written, TypeScript gives a variable the type of its first value. When a variable will hold more than that, give it its type yourself. A check against `undefined` then narrows it back, as in Step 3.
 
 ### `any` sneaks in through library types
 
@@ -100,6 +97,6 @@ if (Array.isArray(body)) {
 }
 ```
 
-`Array.isArray` narrows `unknown` to `any[]`, not `unknown[]`, so each item is `any`. `any` spreads silently: once one value is `any`, everything computed from it is too. Wherever an `any` comes in, hand it straight to code that treats it as `unknown` and checks it.
+`Array.isArray` narrows `unknown` to `any[]`, not `unknown[]`, so each item is `any`. `any` spreads silently: once one value is `any`, everything computed from it is too, and nothing about it is checked.
 
 Stuck? See [HINTS.md](HINTS.md).

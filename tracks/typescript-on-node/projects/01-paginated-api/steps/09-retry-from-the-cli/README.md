@@ -63,7 +63,8 @@ It behaves just as before, because GitHub rarely fails. Retries are for the day 
 
 ## Reading the tests
 
-- `Record<string, () => Response>` is a lookup table, as in Step 4, and `Writer & { text: () => string }` is an intersection, as in Step 5.
+- `Record<string, () => Response>` is a lookup table, as in Step 4. See [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type).
+- `Writer & { text: () => string }` is an intersection, as in Step 5. See [Intersection types](https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types).
 - The last test builds an `Io` without `sleep`. It always passes when it runs. What it really checks is that it compiles, so that `sleep` really is optional.
 
 ## Why TypeScript does it this way

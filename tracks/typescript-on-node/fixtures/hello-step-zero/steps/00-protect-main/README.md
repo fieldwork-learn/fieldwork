@@ -6,8 +6,8 @@ GitHub enforces this with a **ruleset**. A ruleset is a set of rules a branch mu
 
 There is no code to write. This Step passes once `main` requires:
 
-- a pull request before merging;
-- the **Fieldwork Steps** check to pass. That's the check this repository's workflow runs on every pull request.
+- a pull request before merging, and
+- the **Fieldwork Steps** check to pass, which this repository's workflow runs on every pull request.
 
 ## Before you start
 

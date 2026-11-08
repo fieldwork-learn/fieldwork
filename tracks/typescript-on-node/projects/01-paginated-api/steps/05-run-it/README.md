@@ -75,6 +75,10 @@ const strict: { write(text: string): boolean } = { write: (text) => chunks.push(
 // ❌ Type 'number' is not assignable to type 'boolean'.
 ```
 
+```ts
+const loose: { write(text: string): unknown } = { write: (text) => chunks.push(text) }; // ✅
+```
+
 `process.stdout.write` returns a `boolean`, and the test's fake returns a number, from `push`. `Writer`'s `write(text: string): unknown` accepts both, because `main` never uses the result. `void` would also work for a function type, but `unknown` says it more plainly.
 
 ### A caught error is `unknown`
@@ -91,21 +95,17 @@ try {
 
 JavaScript can `throw` anything: a string, a number, or `undefined`. So with `strict` on, TypeScript types the variable in `catch (error)` as `unknown`, not `Error`. `error instanceof Error` narrows it before you read `.message`. It's the same narrowing as in Step 2, applied to classes.
 
-### The first argument might not be there
+### Destructuring can miss, too
 
-Given `args: string[]`:
-
-```ts
-const [first] = args;
-first.toUpperCase();
-// ❌ 'first' is possibly 'undefined'.
-```
+Given `racers: string[]`:
 
 ```ts
-if (first !== undefined) first.toUpperCase(); // ✅
+const [winner] = racers;
+winner.toUpperCase();
+// ❌ 'winner' is possibly 'undefined'.
 ```
 
-With `noUncheckedIndexedAccess` on (Step 3), `args[0]`, or `const [first] = args`, is `string | undefined`. The array might be empty. TypeScript won't let you use it as a `string` until you've checked.
+With `noUncheckedIndexedAccess` on, destructuring is checked like indexing (Step 3). `const [winner] = racers` is the same as `racers[0]`, so it's `string | undefined`, because the array might be empty. Check it before using it as a `string`, as in Step 3.
 
 ### `import.meta.main` and top-level `await`
 

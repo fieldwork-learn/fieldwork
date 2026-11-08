@@ -102,7 +102,7 @@ async function answer(): number { return 42; }
 async function answer(): Promise<number> { return 42; } // ✅
 ```
 
-That's why the return type is `Promise<unknown>`, never just `unknown`. A `throw` inside an `async` function doesn't throw at the caller. It rejects the Promise, and `await` turns that back into an exception.
+An `async` function's return type is always a `Promise` of something. A `throw` inside an `async` function doesn't throw at the caller. It rejects the Promise, and `await` turns that back into an exception.
 
 ### Imports end in `.ts`
 
@@ -125,7 +125,8 @@ import { Fetch } from "./repositories.ts";
 ```
 
 ```ts
-import { fetchFirstPage, type Fetch } from "./repositories.ts"; // ✅
+import { fetchFirstPage, type Fetch } from "./repositories.ts"; // ✅ type before the one name
+import type { Fetch } from "./repositories.ts";                 // ✅ or before the braces, when every name is a type
 ```
 
 `Fetch` is a type, and stripping the types removes it, so it doesn't exist when the code runs. Marking it `type` says so up front. The tsconfig's `verbatimModuleSyntax` insists on it, so Node never tries to import something that won't be there.
